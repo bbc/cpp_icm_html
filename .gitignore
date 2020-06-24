@@ -1,0 +1,7 @@
+.vscode/
+build/
+CMakeFiles/
+icm2html
+Makefile
+*.chna
+*.cmake
