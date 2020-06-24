@@ -15,3 +15,16 @@ IVSOnOffElement::IVSOnOffElement(std::shared_ptr<adm::AudioObject> the_obj, bool
     m_obj(the_obj),
     m_is_on(is_on){}
 
+IVSPosElement::IVSPosElement(std::shared_ptr<adm::AudioObject> the_obj, bool is_polar, float x_or_azimuth = 0, float y_or_elevation = 0, float z_or_distance = 0) :
+    IVSElement(IVS_POSITION),
+    m_obj(the_obj),
+    m_is_polar(is_polar),
+    m_x_or_azimuth(x_or_azimuth),
+    m_y_or_elevation(y_or_elevation),
+    m_z_or_distance(z_or_distance){}
+
+
+IVSComplementaryAudioElement::IVSComplementaryAudioElement(std::shared_ptr<adm::AudioObject> the_obj, std::shared_ptr<adm::AudioObject> comp_obj) :
+    IVSElement(IVS_COMP_OBJECT),
+    m_obj(the_obj),
+    m_comp_obj(comp_obj){}
