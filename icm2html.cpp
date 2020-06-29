@@ -4,16 +4,20 @@
 #include "adm.hpp"
 #include "parse.hpp"
 #include <fstream>
+#include "rapidxml.hpp"
+#include "icmxmlparser.hpp"
+#include "icmelements.hpp"
 
 
 using namespace icm_html_cpp;
 
 int main(int argc, char* argv[]){
-    static const char short_opts[] = "hc:a:";
+    static const char short_opts[] = "hc:a:i:";
     const struct option long_opts[] = {
         {"help", 0, NULL, 'h'},
         {"chnafile", 1, NULL, 'c'},
         {"admfile", 1, NULL, 'a'},
+        {"icmfile", 1, NULL, 'i'},
         {NULL, 0, NULL, 0}
     };
 
@@ -25,6 +29,7 @@ int main(int argc, char* argv[]){
 
     std::string chna_file;
     std::string adm_file;
+    std::string icm_file;
 
 
     while ((opt = getopt_long(argc, argv, short_opts, long_opts, &option_index)) != -1) {
@@ -40,6 +45,10 @@ int main(int argc, char* argv[]){
 
         case 'a':
             adm_file = optarg;
+            break;
+
+        case 'i':
+            icm_file = optarg;
             break;
         
         default:
@@ -58,9 +67,14 @@ int main(int argc, char* argv[]){
 
     if(the_adm == nullptr) return 1;
     
+    std::ifstream icm_file_obj(icm_file);
+    std::string icm_as_cpp_string((std::istreambuf_iterator<char>(icm_file_obj)),
+                 std::istreambuf_iterator<char>());
+    char* icm_as_c_string = const_cast<char*>(icm_as_cpp_string.c_str());
 
+    rapidxml::xml_document<>* the_icm_xml =  ICMXMLParser::parse_xml_from_file(icm_as_c_string, error);
     
-
+    std::vector<std::shared_ptr<InteractiveValueSet>> IVS_list = InteractiveValueSet::read_IVSs_from_xml(the_icm_xml, the_adm);
 
 
 
@@ -77,11 +91,13 @@ std::shared_ptr<adm::Document> icm_html_cpp::read_adm_xml_file(std::string fileP
         err = ICM_COULD_NOT_OPEN_FILE;
         return nullptr;
     } else {
-        try{
-            return adm::parseXml(adm_file);
-        } catch (std::exception e){
-            ERROR("Could not create ADM object: %s", e.what());
-            return nullptr;
-        }
+        std::shared_ptr<adm::Document> the_adm;
+        //try{
+            the_adm = adm::parseXml(adm_file, adm::xml::ParserOptions::recursive_node_search);
+       // } catch (std::exception e){
+            //ERROR("Could not create ADM object: %s", e.what());
+            //return nullptr;
+        //}
+        return the_adm;
     }
 }

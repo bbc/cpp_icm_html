@@ -15,7 +15,7 @@ IVSOnOffElement::IVSOnOffElement(std::shared_ptr<adm::AudioObject> the_obj, bool
     m_obj(the_obj),
     m_is_on(is_on){}
 
-IVSPosElement::IVSPosElement(std::shared_ptr<adm::AudioObject> the_obj, bool is_polar, float x_or_azimuth = 0, float y_or_elevation = 0, float z_or_distance = 0) :
+IVSPosElement::IVSPosElement(std::shared_ptr<adm::AudioObject> the_obj, bool is_polar, float x_or_azimuth, float y_or_elevation, float z_or_distance) :
     IVSElement(IVS_POSITION),
     m_obj(the_obj),
     m_is_polar(is_polar),
