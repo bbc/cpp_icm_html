@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<audioInteraction>
+  <control controlID="C_0001" controlName="Commentary/Background" type="continuous">
+    <range min="0.0" max="1.0" step="0.05"/>
+    <variable param="gain" min="0.4" max="2.0">
+      <audioObjectIDRef>AO_1001</audioObjectIDRef>
+    </variable>
+    <variable param="gain" min="1.0" max="0.2">
+      <audioObjectIDRef>AO_1002</audioObjectIDRef>
+    </variable>
+    <label lang="en">Commentary/Background</label>
+  </control>
+</audioInteraction>

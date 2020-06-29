@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ebuCoreMain xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="urn:ebu:metadata-schema:ebuCore" xml:lang="en">
+  <audioFormatExtended version="ITU-R_BS.2076-1">
+
+    <audioProgramme audioProgrammeID="APR_1001" audioProgrammeName="Sport">
+      <audioContentIDRef>ACO_1001</audioContentIDRef>
+      <audioContentIDRef>ACO_1002</audioContentIDRef>
+    </audioProgramme>
+    
+    <audioContent audioContentID="ACO_1001" audioContentName="Commentary">
+      <audioObjectIDRef>AO_1001</audioObjectIDRef>
+    </audioContent>
+    <audioContent audioContentID="ACO_1002" audioContentName="Background">
+      <audioObjectIDRef>AO_1002</audioObjectIDRef>
+    </audioContent>
+
+    <audioObject audioObjectID="AO_1001" audioObjectName="Commentary" interact="1">
+      <audioObjectInteraction onOffInteract="1" gainInteract="1" positionInteract="0">
+        <gainInteractionRange bound="min">0.4</gainInteractionRange>
+        <gainInteractionRange bound="max">2.0</gainInteractionRange>
+      </audioObjectInteraction>
+      <audioObjectIDRef>AO_1003</audioObjectIDRef>
+      <audioObjectIDRef>AO_1004</audioObjectIDRef>
+    </audioObject>
+
+    <audioObject audioObjectID="AO_1003" audioObjectName="HomeCommentary" interact="1">
+      <audioComplementaryObjectIDRef>AO_1004</audioComplementaryObjectIDRef>
+      <audioPackFormatIDRef>AP_00010001</audioPackFormatIDRef>
+      <audioTrackUIDRef>ATU_00000001</audioTrackUIDRef>
+    </audioObject>
+ 
+    <audioObject audioObjectID="AO_1004" audioObjectName="AwayCommentary" interact="1">
+      <audioPackFormatIDRef>AP_00010001</audioPackFormatIDRef>
+      <audioTrackUIDRef>ATU_00000002</audioTrackUIDRef>
+    </audioObject>
+   
+    <audioObject audioObjectID="AO_1002" audioObjectName="Background" interact="1">
+      <audioObjectInteraction onOffInteract="1" gainInteract="1" positionInteract="0">
+        <gainInteractionRange bound="min">0.0</gainInteractionRange>
+        <gainInteractionRange bound="max">1.0</gainInteractionRange>
+      </audioObjectInteraction>
+      <audioPackFormatIDRef>AP_00010002</audioPackFormatIDRef>
+      <audioTrackUIDRef>ATU_00000003</audioTrackUIDRef>
+      <audioTrackUIDRef>ATU_00000004</audioTrackUIDRef>
+    </audioObject>
+   
+    <audioTrackUID UID="ATU_00000001">
+      <audioTrackFormatIDRef>AT_00010003_01</audioTrackFormatIDRef>
+      <audioPackFormatIDRef>AP_00010001</audioPackFormatIDRef>
+    </audioTrackUID>
+
+    <audioTrackUID UID="ATU_00000002">
+      <audioTrackFormatIDRef>AT_00010003_01</audioTrackFormatIDRef>
+      <audioPackFormatIDRef>AP_00010001</audioPackFormatIDRef>
+    </audioTrackUID>
+   
+    <audioTrackUID UID="ATU_00000003">
+      <audioTrackFormatIDRef>AT_00010001_01</audioTrackFormatIDRef>
+      <audioPackFormatIDRef>AP_00010002</audioPackFormatIDRef>
+    </audioTrackUID>
+    
+    <audioTrackUID UID="ATU_00000004">
+      <audioTrackFormatIDRef>AT_00010002_01</audioTrackFormatIDRef>
+      <audioPackFormatIDRef>AP_00010002</audioPackFormatIDRef>
+    </audioTrackUID>
+   
+  </audioFormatExtended>
+</ebuCoreMain>

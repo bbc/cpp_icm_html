@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<audioInteraction>
+  <preset presetID="P_1001" presetName="Default">
+    <audioProgrammeIDRef>APR_1001</audioProgrammeIDRef>
+    <label lang="en">Home</label> 
+  </preset>
+
+  <preset presetID="P_1002" presetName="Away">
+    <audioProgrammeIDRef>APR_1001</audioProgrammeIDRef>
+    <interactiveValueSetIDRef>OCS_1001_0001</interactiveValueSetIDRef>
+    <label lang="en">Away</label>
+  </preset>
+ 
+  <preset presetID="P_1003" presetName="HomeDia+">
+    <audioProgrammeIDRef>APR_1001</audioProgrammeIDRef>
+    <interactiveValueSetIDRef>OCS_1001_0002</interactiveValueSetIDRef>
+    <interactiveValueSetIDRef>OCS_1002_0001</interactiveValueSetIDRef>
+    <label lang="en">Enhanced Dialogue Home</label> 
+  </preset>
+
+  <preset presetID="P_1004" presetName="AwayDia+">
+    <audioProgrammeIDRef>APR_1001</audioProgrammeIDRef>
+    <interactiveValueSetIDRef>OCS_1001_0003</interactiveValueSetIDRef>
+    <interactiveValueSetIDRef>OCS_1002_0001</interactiveValueSetIDRef>
+    <label lang="en">Enhanced Dialogue Home</label> 
+  </preset>
+ 
+  <interactiveValueSet interactiveValueSetID="OCS_1001_0001">
+    <audioObjectIDRef>AO_1001</audioObjectIDRef>
+    <complementaryAudioObjectIDRef>AO_1004</complementaryAudioObjectIDRef>
+  </interactiveValueSet>
+ 
+  <interactiveValueSet interactiveValueSetID="OCS_1001_0002">
+    <audioObjectIDRef>AO_1001</audioObjectIDRef>
+    <complementaryAudioObjectIDRef>AO_1003</complementaryAudioObjectIDRef>
+    <gain>1.6</gain>
+  </interactiveValueSet>
+
+  <interactiveValueSet interactiveValueSetID="OCS_1001_0003">
+    <audioObjectIDRef>AO_1001</audioObjectIDRef>
+    <complementaryAudioObjectIDRef>AO_1004</complementaryAudioObjectIDRef>
+    <gain>1.6</gain>
+  </interactiveValueSet>
+ 
+  <interactiveValueSet interactiveValueSetID="OCS_1002_0001">
+    <audioObjectIDRef>AO_1002</audioObjectIDRef>
+    <gain>0.625</gain>
+  </interactiveValueSet>
+ 
+</audioInteraction>

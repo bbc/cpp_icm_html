@@ -1,0 +1,72 @@
+<audioInteraction>
+  <control controlID="C_0001" controlName="Narrative importance" type="continuous">
+    <range max="1.0" min="0.0"/>
+    <label lang="en">Narrative importance</label>
+    <variable max="0.251" min="1.000" param="gain">
+      <audioObjectIDRef>AO_1002</audioObjectIDRef>
+      <audioObjectIDRef>AO_1003</audioObjectIDRef>
+      <audioObjectIDRef>AO_1004</audioObjectIDRef>
+      <audioObjectIDRef>AO_1005</audioObjectIDRef>
+      <audioObjectIDRef>AO_1007</audioObjectIDRef>
+      <audioObjectIDRef>AO_1010</audioObjectIDRef>
+      <audioObjectIDRef>AO_1011</audioObjectIDRef>
+      <audioObjectIDRef>AO_1014</audioObjectIDRef>
+      <audioObjectIDRef>AO_1015</audioObjectIDRef>
+      <audioObjectIDRef>AO_101E</audioObjectIDRef>
+      <audioObjectIDRef>AO_101F</audioObjectIDRef>
+    </variable>
+    <variable max="0.631" min="1.000" param="gain">
+      <audioObjectIDRef>AO_1001</audioObjectIDRef>
+      <audioObjectIDRef>AO_1006</audioObjectIDRef>
+      <audioObjectIDRef>AO_1009</audioObjectIDRef>
+      <audioObjectIDRef>AO_100A</audioObjectIDRef>
+      <audioObjectIDRef>AO_100B</audioObjectIDRef>
+      <audioObjectIDRef>AO_100C</audioObjectIDRef>
+      <audioObjectIDRef>AO_100E</audioObjectIDRef>
+      <audioObjectIDRef>AO_100F</audioObjectIDRef>
+      <audioObjectIDRef>AO_1012</audioObjectIDRef>
+      <audioObjectIDRef>AO_1013</audioObjectIDRef>
+      <audioObjectIDRef>AO_1016</audioObjectIDRef>
+      <audioObjectIDRef>AO_1019</audioObjectIDRef>
+      <audioObjectIDRef>AO_101A</audioObjectIDRef>
+      <audioObjectIDRef>AO_101B</audioObjectIDRef>
+      <audioObjectIDRef>AO_101C</audioObjectIDRef>
+      <audioObjectIDRef>AO_1024</audioObjectIDRef>
+      <audioObjectIDRef>AO_1029</audioObjectIDRef>
+      <audioObjectIDRef>AO_102A</audioObjectIDRef>
+    </variable>
+    <variable max="1.585" min="1.000" param="gain">
+      <audioObjectIDRef>AO_1008</audioObjectIDRef>
+      <audioObjectIDRef>AO_100D</audioObjectIDRef>
+      <audioObjectIDRef>AO_1017</audioObjectIDRef>
+      <audioObjectIDRef>AO_1018</audioObjectIDRef>
+      <audioObjectIDRef>AO_101D</audioObjectIDRef>
+      <audioObjectIDRef>AO_1020</audioObjectIDRef>
+      <audioObjectIDRef>AO_1021</audioObjectIDRef>
+      <audioObjectIDRef>AO_1022</audioObjectIDRef>
+      <audioObjectIDRef>AO_1023</audioObjectIDRef>
+      <audioObjectIDRef>AO_1025</audioObjectIDRef>
+      <audioObjectIDRef>AO_1026</audioObjectIDRef>
+      <audioObjectIDRef>AO_1027</audioObjectIDRef>
+      <audioObjectIDRef>AO_1028</audioObjectIDRef>
+      <audioObjectIDRef>AO_102B</audioObjectIDRef>
+    </variable>
+  </control>
+  <control controlID="C_0002" controlName="AD" type="toggle">
+    <toggleOn>
+      <label lang="en">AD On</label>
+      <on>
+        <audioObjectIDRef>AO_102F</audioObjectIDRef>
+      </on>
+      <off/>
+    </toggleOn>
+    <toggleOff>
+      <label lang="en">AD Off</label>
+      <on/>
+      <off>
+        <audioObjectIDRef>AO_102F</audioObjectIDRef>
+      </off>
+    </toggleOff>
+  </control>
+</audioInteraction>
+

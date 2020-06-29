@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<audioInteraction>
+  <control controlID="C_0002" controlName="Home/Away" type="option">
+    <option index="1">
+      <label lang="en">Home</label>
+      <audioObjectIDRef>AO_1003</audioObjectIDRef>
+    </option>
+    <option index="2">
+      <label lang="en">Away</label>
+      <audioObjectIDRef>AO_1004</audioObjectIDRef>
+    </option>
+  </control>
+</audioInteraction>

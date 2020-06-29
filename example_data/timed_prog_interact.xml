@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<audioInteraction>
+  <control controlID="C_0001" controlName="Language" type="option">
+    <option index="1">
+      <label lang="en">English</label>
+      <audioObjectIDRef>AO_1001</audioObjectIDRef>
+    </option>
+    <option index="2">
+      <label lang="en">German</label>
+      <audioObjectIDRef>AO_1002</audioObjectIDRef>
+    </option>
+  </control>
+  
+  <control controlID="C_0002" controlName="Dialogue Enhancement" type="continuous" start="00:00:10.00000" duration="00:00:40.00000">
+    <range min="0.0" max="1.0" step="0.05"/>
+    <variable param="gain" min="0.8" max="1.2">
+      <audioObjectIDRef>AO_1001</audioObjectIDRef>
+      <audioObjectIDRef>AO_1002</audioObjectIDRef>
+    </variable>
+    <variable param="gain" min="1.0" max="0.2">
+      <audioObjectIDRef>AO_1003</audioObjectIDRef>
+    </variable>
+    <variable param="gain" min="1.0" max="0.0">
+      <audioObjectIDRef>AO_1005</audioObjectIDRef>
+    </variable>
+    <label lang="en">Dialogue Enhancemen</label>
+  </control>
+</audioInteraction>
