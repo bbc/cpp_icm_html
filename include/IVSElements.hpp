@@ -26,23 +26,20 @@ class IVSElement{
 
 class IVSGainElement : IVSElement {
     public:
-        IVSGainElement(std::shared_ptr<adm::AudioObject> the_obj, float gain_val);
-        std::shared_ptr<adm::AudioObject> m_obj;
+        IVSGainElement(float gain_val);
         float m_val;
 };
 
 class IVSOnOffElement : IVSElement{
     public:
-        IVSOnOffElement(std::shared_ptr<adm::AudioObject> the_obj, bool is_on);
-        std::shared_ptr<adm::AudioObject> m_obj;
+        IVSOnOffElement(bool is_on);
         bool m_is_on;
 
 };
 
 class IVSPosElement : IVSElement {
     public:
-        IVSPosElement(std::shared_ptr<adm::AudioObject> the_obj, bool is_polar, float x_or_azimuth = 0, float y_or_elevation = 0, float z_or_distance = 0);
-        std::shared_ptr<adm::AudioObject> m_obj;
+        IVSPosElement(bool is_polar, float x_or_azimuth = 0, float y_or_elevation = 0, float z_or_distance = 0);
         bool m_is_polar;
         float m_x_or_azimuth;
         float m_y_or_elevation;
@@ -52,8 +49,7 @@ class IVSPosElement : IVSElement {
 
 class IVSComplementaryAudioElement : IVSElement {
     public:
-        IVSComplementaryAudioElement(std::shared_ptr<adm::AudioObject> the_obj, std::shared_ptr<adm::AudioObject> comp_obj);
-        std::shared_ptr<adm::AudioObject> m_obj;
+        IVSComplementaryAudioElement(std::shared_ptr<adm::AudioObject> comp_obj);
         std::shared_ptr<adm::AudioObject> m_comp_obj;
 };
 

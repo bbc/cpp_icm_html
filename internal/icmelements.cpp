@@ -26,7 +26,7 @@ std::vector<std::shared_ptr<InteractiveValueSet>>* InteractiveValueSet::read_IVS
         std::string attrib_name(attrib->name());
         if(attrib_name != "interactiveValueSetID") ERROR("Unrecognised attribute in interactiveValueSetID: %s \n", attrib_name.c_str());
         else {
-
+            
         }
         
         
@@ -41,19 +41,11 @@ std::vector<std::shared_ptr<InteractiveValueSet>>* InteractiveValueSet::read_IVS
     
 }
 
-Preset::Preset(std::string preset_ID, std::string preset_name, std::string label, std::string audio_prog_ref) : 
+Preset::Preset(std::string preset_ID, std::string preset_name, int preset_index) : 
     m_preset_ID(preset_ID),
     m_preset_name(preset_name),
-    m_label(label),
-    m_audio_prog_ref(audio_prog_ref){}
+    m_index(preset_index){}
 
-std::vector<std::shared_ptr<Preset>> Preset::read_presets_from_xml(std::stringstream xml_in, std::shared_ptr<adm::Document> the_adm, std::vector<std::shared_ptr<InteractiveValueSet>> IVSs_in){
-
-}
-
-std::string Preset::generate_html(ICM_ERROR_CODE& err){
-
-}
 
 ICM_ERROR_CODE Preset::add_IVS(InteractiveValueSet* IVS_in){
 
@@ -84,9 +76,12 @@ ContinuousControl::ContinuousControl(std::string control_label, std::string cont
         m_range.r_step = step;
     }
 
+ContinuousControl::ContinuousControl(std::string control_id, std::string control_name) : 
+    Control(CONTROL_CONTINUOUS, control_id, control_name){}
+
 ICM_ERROR_CODE ContinuousControl::add_variable(adm::AudioObject* audio_object, CONTROL_VAR param, float min, float max, CONTROL_VAR_SCALE_TYPE scale_type){
     
-    variable the_var{
+    variable* the_var = new variable{
         audio_object,
         param,
         min,
@@ -102,14 +97,40 @@ ToggleControl::ToggleControl(std::string control_label, std::string control_id, 
      Control(CONTROL_TOGGLE, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
      m_label(control_label){}
 
-
-icm_html_cpp::ToggleControl::state* ToggleControl::add_state_info(std::string label, bool on, std::vector<adm::AudioObject*>* audio_objects, std::vector<adm::AudioObject*>* audio_objects_comp){
-    auto state_to_edit = on ? &m_toggle_on : &m_toggle_off;
-
-    state_to_edit->s_label=label;
-    state_to_edit->s_    
+ToggleControl::ToggleControl(std::string control_id, std::string control_name) : 
+    Control(CONTROL_TOGGLE, control_id, control_name){}
 
 
+OptionControl::OptionControl(std::string control_label, std::string control_id, std::string control_name,
+                            bool control_is_conditional = 0, std::string start_time = "", std::string end_time = "", adm::AudioProgramme* prog_ref = 0) :
+    Control(CONTROL_OPTION, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
+    m_label(control_label){}
+
+OptionControl::OptionControl(std::string control_id, std::string control_name) :
+    Control(CONTROL_OPTION, control_id, control_name){}
+
+icm_html_cpp::OptionControl::option* OptionControl::add_option(int index, std::string label){
+    option* the_option = new option();
+
+    the_option->o_index=index;
+    the_option->o_label=label;
+
+    m_options.push_back(the_option);
+
+    return the_option;
+
+}
+
+ICM_ERROR_CODE OptionControl::option::add_object(adm::AudioObject* obj_to_add){
+    
+        o_audio_objects.push_back(obj_to_add);
+        return ICM_OK;
+    
+}
+
+ICM_ERROR_CODE OptionControl::option::add_cond_control(Control* control_to_add){
+    o_cond_controls.push_back(control_to_add);
+    return ICM_OK;
 }
 
 
