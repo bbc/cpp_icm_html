@@ -31,6 +31,23 @@ namespace icm_html_cpp{
 
     };
 
+    class LoudnessMetadata{
+      public:
+          
+        bool m_exists;
+        std::string m_loudness_method;
+        std::string m_loudness_rec_type;
+        std::string m_loudness_correction_type;
+        float m_integrated_loudness_value;
+        float m_max_true_peak;
+        float m_loudness_range;
+        float m_max_momentary;
+        float m_max_short_term;
+        float m_dialogue_loudness;
+
+
+    };
+
     class Preset{
         public:
 
@@ -57,7 +74,7 @@ namespace icm_html_cpp{
             //std::vector<std::shared_ptr<Control>> m_cond_controls;
             std::vector<std::string> m_cond_control_refs;
 
-            void* m_loudness;
+            LoudnessMetadata m_loudness;
 
             private: 
             
@@ -202,6 +219,8 @@ namespace icm_html_cpp{
             state* m_toggle_on;
             state* m_toggle_off;
     };
+
+
 }
 
 #endif

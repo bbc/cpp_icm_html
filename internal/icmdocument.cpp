@@ -61,6 +61,21 @@ namespace icm_html_cpp {
                     }
                     str_to_print << "." <<std::endl <<std::endl;
                 }
+
+                if(preset_of_interest->m_loudness.m_exists){
+                    str_to_print << "Lcudness Metadata:" << std::endl;
+                    str_to_print << "Loudness Method: " << preset_of_interest->m_loudness.m_loudness_method << std::endl;
+                    str_to_print << "Loudness Rec Type: " << preset_of_interest->m_loudness.m_loudness_rec_type << std::endl;
+                    str_to_print << "Loudness Correction Type: " << preset_of_interest->m_loudness.m_loudness_correction_type << std::endl;
+
+                    str_to_print << "Integrated Loudness Value: " << std::to_string(preset_of_interest->m_loudness.m_integrated_loudness_value) << std::endl;
+                    str_to_print << "Loudness Range: " << std::to_string(preset_of_interest->m_loudness.m_loudness_range) << std::endl;
+                    str_to_print << "Max True Peak: " << std::to_string(preset_of_interest->m_loudness.m_max_true_peak) << std::endl;
+                    str_to_print << "Max Momentary: " << std::to_string(preset_of_interest->m_loudness.m_max_momentary) << std::endl;
+                    str_to_print << "Max Short Term: " << std::to_string(preset_of_interest->m_loudness.m_max_short_term) << std::endl;
+                    str_to_print << "Dialogue Loudness: " << std::to_string(preset_of_interest->m_loudness.m_dialogue_loudness) << std::endl;
+                    
+                }
             }
         }
 
@@ -363,10 +378,32 @@ namespace icm_html_cpp {
 
         std::shared_ptr<Preset> the_preset = std::shared_ptr<Preset>(new Preset(pid, pname, pindex));
 
+        the_preset->m_loudness.m_exists = false;
+
         for(rapidxml::xml_node<>* node = preset_in->first_node(); node; node = node->next_sibling()){
             if((std::string) node->name() == "label") the_preset->m_label = (std::string)node->value(); 
             else if((std::string) node->name() == "audioProgrammeIDRef") the_preset->m_audio_prog_ref = (std::string)node->value(); 
             else if((std::string) node->name() == "interactiveValueSetIDRef") the_preset->m_ivs_refs.push_back((std::string)node->value());
+            else if((std::string) node->name() == "loudnessMetadata"){
+                the_preset->m_loudness.m_exists = true;
+                for(rapidxml::xml_attribute<>* lm_at = node->first_attribute(); lm_at; lm_at = lm_at->next_attribute()){
+                    std::string la_name = (std::string)lm_at->name();
+                    if(la_name == "loudnessMethod") the_preset->m_loudness.m_loudness_method = (std::string)lm_at->value();
+                    else if(la_name == "loudnessRecType") the_preset->m_loudness.m_loudness_rec_type = (std::string)lm_at->value();
+                    else if(la_name == "loudnessCorrectionType") the_preset->m_loudness.m_loudness_correction_type = (std::string) lm_at->value();
+                }
+
+
+                for(rapidxml::xml_node<>* lm_node = node->first_node(); lm_node; lm_node = lm_node->next_sibling()){
+                    std::string lm_name = (std::string)lm_node->name();
+                    if(lm_name == "integratedLoudness") the_preset->m_loudness.m_integrated_loudness_value = std::stof(lm_node->value());
+                    else if(lm_name == "loudnessRange") the_preset->m_loudness.m_loudness_range = std::stof( lm_node->value());
+                    else if(lm_name == "maxTruePeak") the_preset->m_loudness.m_max_true_peak = std::stof(lm_node->value());
+                    else if(lm_name == "maxMomentary") the_preset->m_loudness.m_max_momentary = std::stof(lm_node->value());
+                    else if(lm_name == "maxShortTerm") the_preset->m_loudness.m_max_short_term = std::stof(lm_node->value());
+                    else if(lm_name == "dialogueLoudness") the_preset->m_loudness.m_dialogue_loudness = std::stof(lm_node->value());
+                }
+            }
         }
 
         m_presets.push_back(the_preset);
