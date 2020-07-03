@@ -13,14 +13,16 @@ IVSOnOffElement::IVSOnOffElement(bool is_on) :
     IVSElement(IVS_ONOFF),
     m_is_on(is_on){}
 
-IVSPosElement::IVSPosElement(bool is_polar, float x_or_azimuth, float y_or_elevation, float z_or_distance) :
+IVSPosElement::IVSPosElement(IVS_COORD_TYPE coord_type, float val) :
     IVSElement(IVS_POSITION),
-    m_is_polar(is_polar),
-    m_x_or_azimuth(x_or_azimuth),
-    m_y_or_elevation(y_or_elevation),
-    m_z_or_distance(z_or_distance){}
+    m_coord_type(coord_type),
+    m_val(val){}
 
 
 IVSComplementaryAudioElement::IVSComplementaryAudioElement(std::shared_ptr<adm::AudioObject> comp_obj) :
     IVSElement(IVS_COMP_OBJECT),
     m_comp_obj(comp_obj){}
+
+IVSComplementaryAudioElement::IVSComplementaryAudioElement(std::string comp_obj_str) :
+    IVSElement(IVS_COMP_OBJECT),
+    m_co_str(comp_obj_str){}

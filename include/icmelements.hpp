@@ -18,9 +18,9 @@ namespace icm_html_cpp{
     class InteractiveValueSet{
         public:
             InteractiveValueSet(std::string ID);
-            ~InteractiveValueSet();
+            //~InteractiveValueSet();
 
-            ICM_ERROR_CODE add_element(IVSElement* elem_in);
+            //ICM_ERROR_CODE add_element(IVSElement* elem_in);
 
         //private:
             std::string m_IVS_ID;
@@ -35,7 +35,7 @@ namespace icm_html_cpp{
         public:
 
             Preset(std::string preset_ID, std::string preset_name, int preset_index);
-            ~Preset();
+            //~Preset();
 
             
 
@@ -54,7 +54,7 @@ namespace icm_html_cpp{
             std::vector<std::shared_ptr<InteractiveValueSet>> m_interactive_value_sets;
             std::vector<std::string> m_ivs_refs;
 
-            std::vector<std::shared_ptr<Control>> m_cond_controls;
+            //std::vector<std::shared_ptr<Control>> m_cond_controls;
             std::vector<std::string> m_cond_control_refs;
 
             void* m_loudness;
@@ -106,7 +106,7 @@ namespace icm_html_cpp{
         adm::AudioProgramme* m_programme_ref;
     };
 
-    class ContinuousControl : Control {
+    class ContinuousControl : public Control {
         public:
 
             struct variable{
@@ -142,7 +142,7 @@ namespace icm_html_cpp{
 
     };
 
-    class OptionControl : Control {
+    class OptionControl : public Control {
         public:
 
         class option{
@@ -172,7 +172,7 @@ namespace icm_html_cpp{
 
     };
 
-    class ToggleControl : Control {
+    class ToggleControl : public Control {
         public:
             
             struct substate{

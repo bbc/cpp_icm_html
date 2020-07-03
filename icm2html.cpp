@@ -5,7 +5,7 @@
 #include "parse.hpp"
 #include <fstream>
 #include "rapidxml.hpp"
-#include "icmxmlparser.hpp"
+#include "icmdocument.hpp"
 #include "icmelements.hpp"
 
 
@@ -72,9 +72,9 @@ int main(int argc, char* argv[]){
                  std::istreambuf_iterator<char>());
     char* icm_as_c_string = const_cast<char*>(icm_as_cpp_string.c_str());
 
-    rapidxml::xml_document<>* the_icm_xml =  ICMXMLParser::parse_xml_from_file(icm_as_c_string, error);
+    ICMDocument::parse_xml_from_file(icm_as_c_string, error);
     
-    std::vector<std::shared_ptr<InteractiveValueSet>> IVS_list = InteractiveValueSet::read_IVSs_from_xml(the_icm_xml, the_adm);
+    //std::vector<std::shared_ptr<InteractiveValueSet>> IVS_list = InteractiveValueSet::read_IVSs_from_xml(the_icm_xml, the_adm);
 
 
 

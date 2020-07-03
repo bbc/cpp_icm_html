@@ -16,41 +16,50 @@ enum IVS_ELEMENT_TYPE{
     IVS_POSITION
 };
 
+enum IVS_COORD_TYPE{
+    IVS_X,
+    IVS_Y,
+    IVS_Z,
+    IVS_AZIMUTH,
+    IVS_ELEVATION,
+    IVS_DISTANCE
+};
+
 class IVSElement{
     public:
         IVSElement(IVS_ELEMENT_TYPE element_type);
-        ~IVSElement();
+        //~IVSElement();
         IVS_ELEMENT_TYPE m_element_type;
 
 };
 
-class IVSGainElement : IVSElement {
+class IVSGainElement : public IVSElement {
     public:
         IVSGainElement(float gain_val);
         float m_val;
 };
 
-class IVSOnOffElement : IVSElement{
+class IVSOnOffElement : public IVSElement{
     public:
         IVSOnOffElement(bool is_on);
         bool m_is_on;
 
 };
 
-class IVSPosElement : IVSElement {
+class IVSPosElement : public IVSElement {
     public:
-        IVSPosElement(bool is_polar, float x_or_azimuth = 0, float y_or_elevation = 0, float z_or_distance = 0);
-        bool m_is_polar;
-        float m_x_or_azimuth;
-        float m_y_or_elevation;
-        float m_z_or_distance;
+        IVSPosElement(IVS_COORD_TYPE coord_type, float val);
+        IVS_COORD_TYPE m_coord_type;
+        float m_val;
 
 };
 
-class IVSComplementaryAudioElement : IVSElement {
+class IVSComplementaryAudioElement : public IVSElement {
     public:
         IVSComplementaryAudioElement(std::shared_ptr<adm::AudioObject> comp_obj);
+        IVSComplementaryAudioElement(std::string comp_obj_str);
         std::shared_ptr<adm::AudioObject> m_comp_obj;
+        std::string m_co_str;
 };
 
 

@@ -14,7 +14,7 @@ namespace icm_html_cpp {
 
     class ICMDocument{
         public:
-            ICMDocument();
+            //ICMDocument();
             static ICMDocument* parse_xml_from_file(char* file_in, ICM_ERROR_CODE& error);
 
             std::vector<std::shared_ptr<Preset>> m_presets;
@@ -29,6 +29,7 @@ namespace icm_html_cpp {
             void add_option_control(rapidxml::xml_node<>* control_in, std::string c_ID, std::string c_name);
             void add_toggle_control(rapidxml::xml_node<>* control_in, std::string c_ID, std::string c_name);
 
+            void make_references();
 
 
     };
