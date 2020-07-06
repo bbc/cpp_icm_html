@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
                  std::istreambuf_iterator<char>());
     char* icm_as_c_string = const_cast<char*>(icm_as_cpp_string.c_str());
 
-    ICMDocument::parse_xml_from_file(icm_as_c_string, error);
+    ICMDocument::parse_xml_from_file(icm_as_c_string, the_adm, error);
     
     //std::vector<std::shared_ptr<InteractiveValueSet>> IVS_list = InteractiveValueSet::read_IVSs_from_xml(the_icm_xml, the_adm);
 

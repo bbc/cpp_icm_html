@@ -5,7 +5,8 @@ namespace icm_html_cpp {
 
 
     //, adm::Document* the_adm
-    ICMDocument* ICMDocument::parse_xml_from_file(char* file_in, ICM_ERROR_CODE& error){
+    ICMDocument* ICMDocument::parse_xml_from_file(char* file_in, std::shared_ptr<adm::Document> the_adm, ICM_ERROR_CODE& error){
+        //Parse the ICM document string.
         rapidxml::xml_document<>* the_icm_xml = new rapidxml::xml_document<>();
         the_icm_xml->parse<0>(file_in);
         //scan for <audioInteraction>
@@ -20,6 +21,8 @@ namespace icm_html_cpp {
         }
         auto root_node = current_node;
 
+
+        //If AudioInteraction is found, create an empty ICMDocument, and then scan through all the notes, parse what they are, and run the appropriate adding function.
         ICMDocument* the_icm = new ICMDocument();
         
         for (rapidxml::xml_node<>* node = root_node->first_node(); node; node = node->next_sibling()){
@@ -30,13 +33,122 @@ namespace icm_html_cpp {
             else ERROR("Unknown node seen in AudioInteraction: %s\n", node_name.c_str());
         }
 
-        the_icm->make_references();
+        //As the references are only stored as strings currently, this function will resolve those string identifiers into pointers and add them to the appropriate elements.
+        the_icm->make_references(the_adm);
+        
+        the_icm->print_info();
 
         return the_icm;
 
     }
 
-    void ICMDocument::make_references(){
+    void ICMDocument::make_references(std::shared_ptr<adm::Document> the_adm){
+        //resolve IVS
+        
+        for(auto ivs : m_IVSs){
+            for(std::string ao_refname : ivs->m_AO_references){
+                ivs->m_AOs.push_back(lookup_audio_elem(the_adm, ao_refname));
+            }
+
+            for(auto ivs_elem : ivs->m_elements){
+                if(ivs_elem->m_element_type == IVS_COMP_OBJECT){
+                    IVSComplementaryAudioElement* cast_elem = reinterpret_cast<IVSComplementaryAudioElement*>(ivs_elem);
+                    cast_elem->m_comp_obj = lookup_audio_elem(the_adm, cast_elem->m_co_str);
+                }
+            }
+        }
+
+        //resolve presets
+
+        for(auto preset : m_presets){
+            if(preset->m_audio_prog_ref != "") preset->m_audio_prog = the_adm->lookup(adm::parseAudioProgrammeId(preset->m_audio_prog_ref));
+            if(preset->m_cond_control_refs.size() > 0){
+                for(std::string cont_ref : preset->m_cond_control_refs){
+                    std::shared_ptr<Control> resolved_control = lookup_control(cont_ref);
+                    if(resolved_control) preset->m_cond_controls.push_back(resolved_control);
+                    else abort();
+                }
+            }
+            for(std::string ivsid : preset->m_ivs_refs){
+                std::shared_ptr<InteractiveValueSet> resolved_ivs = lookup_IVS(ivsid);
+                if(resolved_ivs) preset->m_interactive_value_sets.push_back(resolved_ivs);
+                else abort();
+            }
+        }
+        
+        //resolve controls
+
+        for(auto control : m_controls){
+            if(control->m_control_type == Control::CONTROL_CONTINUOUS){
+                std::shared_ptr<ContinuousControl> cast_control = std::static_pointer_cast<ContinuousControl>(control);
+                for(auto v : cast_control->m_variables){
+                    for(std::string ao_name : v->v_ao_stringnames) v->v_audio_objects.push_back(lookup_audio_elem(the_adm, ao_name));
+                }
+            } else if(control->m_control_type == Control::CONTROL_OPTION){
+                std::shared_ptr<OptionControl> cast_control = std::static_pointer_cast<OptionControl>(control);
+                for(auto opt : cast_control->m_options){
+                    for(std::string ao_name : opt->o_ao_strings) opt->o_audio_objects.push_back(lookup_audio_elem(the_adm, ao_name));
+                    for(std::string cc_name : opt->o_cond_control_refs) opt->o_cond_controls.push_back(lookup_control(cc_name));
+                }
+            } else if(control->m_control_type == Control::CONTROL_TOGGLE){
+
+                //TODO: This shit needs sorting out. Convert the substates to pointers.
+
+                std::shared_ptr<ToggleControl> cast_control = std::static_pointer_cast<ToggleControl>(control);
+                for(auto ao = cast_control->m_toggle_off->s_off.ss_audio_objects_str->begin(); ao != cast_control->m_toggle_off->s_off.ss_audio_objects_str->end(); ao++) 
+                    cast_control->m_toggle_off->s_off.ss_audio_objects->push_back(lookup_audio_elem(the_adm, *ao));
+
+                for(auto ao = cast_control->m_toggle_off->s_on.ss_audio_objects_str->begin(); ao != cast_control->m_toggle_off->s_on.ss_audio_objects_str->end(); ao++) 
+                    cast_control->m_toggle_off->s_on.ss_audio_objects->push_back(lookup_audio_elem(the_adm, *ao));
+
+                for(auto ao = cast_control->m_toggle_on->s_off.ss_audio_objects_str->begin(); ao != cast_control->m_toggle_on->s_off.ss_audio_objects_str->end(); ao++) 
+                    cast_control->m_toggle_on->s_off.ss_audio_objects->push_back(lookup_audio_elem(the_adm, *ao));
+
+                for(auto ao = cast_control->m_toggle_on->s_on.ss_audio_objects_str->begin(); ao != cast_control->m_toggle_on->s_on.ss_audio_objects_str->end(); ao++) 
+                    cast_control->m_toggle_on->s_on.ss_audio_objects->push_back(lookup_audio_elem(the_adm, *ao));
+
+                for(auto ao = cast_control->m_toggle_off->s_off.ss_comp_objects_str->begin(); ao != cast_control->m_toggle_off->s_off.ss_comp_objects_str->end(); ao++) 
+                    cast_control->m_toggle_off->s_off.ss_comp_objects->push_back(lookup_audio_elem(the_adm, *ao));
+                
+                for(auto ao = cast_control->m_toggle_off->s_on.ss_comp_objects_str->begin(); ao != cast_control->m_toggle_off->s_on.ss_comp_objects_str->end(); ao++) 
+                    cast_control->m_toggle_off->s_on.ss_comp_objects->push_back(lookup_audio_elem(the_adm, *ao));
+
+                for(auto ao = cast_control->m_toggle_on->s_off.ss_comp_objects_str->begin(); ao != cast_control->m_toggle_on->s_off.ss_comp_objects_str->end(); ao++) 
+                    cast_control->m_toggle_on->s_off.ss_comp_objects->push_back(lookup_audio_elem(the_adm, *ao));
+
+                for(auto ao = cast_control->m_toggle_on->s_on.ss_comp_objects_str->begin(); ao != cast_control->m_toggle_on->s_on.ss_comp_objects_str->end(); ao++) 
+                    cast_control->m_toggle_on->s_on.ss_comp_objects->push_back(lookup_audio_elem(the_adm, *ao));
+
+            }
+        }
+    }
+
+    std::shared_ptr<adm::AudioObject> ICMDocument::lookup_audio_elem(std::shared_ptr<adm::Document> the_adm, std::string ao_name){
+                
+        std::shared_ptr<adm::AudioObject> the_ao = the_adm->lookup(adm::parseAudioObjectId(ao_name));
+        if(the_ao){
+            return the_ao;
+        } else {
+            ERROR("AO referenced in ICM not found in document! %s\n", ao_name.c_str());
+            abort();
+        }
+    }
+
+    std::shared_ptr<Control> ICMDocument::lookup_control(std::string control_name){
+        for(auto control : m_controls){
+            if(control->m_control_ID == control_name) return control;
+        }
+        return nullptr;
+    }
+
+    std::shared_ptr<InteractiveValueSet> ICMDocument::lookup_IVS(std::string IVS_ID){
+        for(auto ivs : m_IVSs){
+            if(ivs->m_IVS_ID == IVS_ID) return ivs;
+        }
+        return nullptr;
+    }
+
+    void ICMDocument::print_info(){
         std::stringstream str_to_print;
 
         str_to_print << "I have detected " << m_presets.size() << " presets, " << m_IVSs.size() << " interactiveValueSets, and " << m_controls.size() << " controls." << std::endl;
@@ -228,7 +340,7 @@ namespace icm_html_cpp {
 
         std::string c_name;
         std::string c_ID;
-
+        //scan attributes of control tag as they are the same across all types of control
         for(rapidxml::xml_attribute<>* attrib = control_in->first_attribute(); attrib; attrib = attrib->next_attribute()){
             std::string attrib_name = (std::string)(attrib->name());
             if(attrib_name == "controlID") c_ID = (std::string)attrib->value();
@@ -243,11 +355,13 @@ namespace icm_html_cpp {
     }
 
     void ICMDocument::add_continuous_control(rapidxml::xml_node<>* control_in, std::string c_ID, std::string c_name){
+        //step is optional
         float min, max, step=0.0;
         std::string label;
 
-         auto the_control = std::shared_ptr<ContinuousControl>(new ContinuousControl(c_ID, c_name));
-
+        auto the_control = std::shared_ptr<ContinuousControl>(new ContinuousControl(c_ID, c_name));
+        
+        //Firstly, scan all nodes
         for(rapidxml::xml_node<>* node = control_in->first_node(); node; node = node->next_sibling()){
             std::string node_name = (std::string)(node->name());
             if(node_name == "range"){
@@ -282,6 +396,7 @@ namespace icm_html_cpp {
                         else if(val == "invlog") the_var->v_scale_type = Control::CONTROL_INV_LOG;
                     }
                 }
+                //grab strings of AO refs
                 for(rapidxml::xml_node<>* var_child = node->first_node(); var_child; var_child = var_child->next_sibling()){
                     if((std::string) var_child->name() == "audioObjectIDRef") the_var->v_ao_stringnames.push_back((std::string)var_child->value());
                 }
@@ -312,7 +427,7 @@ namespace icm_html_cpp {
                 for(rapidxml::xml_node<>* opt_child = node->first_node(); opt_child; opt_child = opt_child->next_sibling()){
                     if((std::string) opt_child->name() == "label") the_opt->o_label = (std::string)opt_child->value();
                     else if((std::string) opt_child->name() == "audioObjectIDRef") the_opt->o_ao_strings.push_back((std::string)opt_child->value());
-                    else if((std::string) opt_child->name() == "conditionalControlIDRef") the_opt->o_ao_strings.push_back((std::string)opt_child->value());
+                    else if((std::string) opt_child->name() == "conditionalControlIDRef") the_opt->o_cond_control_refs.push_back((std::string)opt_child->value());
                 }
                 the_control->m_options.push_back(the_opt);
             }
@@ -378,7 +493,7 @@ namespace icm_html_cpp {
 
         std::shared_ptr<Preset> the_preset = std::shared_ptr<Preset>(new Preset(pid, pname, pindex));
 
-        the_preset->m_loudness.m_exists = false;
+        the_preset->m_loudness.m_exists = false; //loudness metadata is optional, so have a bool to indicate if it's there
 
         for(rapidxml::xml_node<>* node = preset_in->first_node(); node; node = node->next_sibling()){
             if((std::string) node->name() == "label") the_preset->m_label = (std::string)node->value(); 

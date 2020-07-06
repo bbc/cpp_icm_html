@@ -10,6 +10,8 @@
 
 namespace icm_html_cpp{
 
+//Constructors for elements.
+
 InteractiveValueSet::InteractiveValueSet(std::string ID) :
     m_IVS_ID(ID){}
 
@@ -43,23 +45,16 @@ ContinuousControl::ContinuousControl(std::string control_label, std::string cont
 ContinuousControl::ContinuousControl(std::string control_id, std::string control_name) : 
     Control(CONTROL_CONTINUOUS, control_id, control_name){}
 
-/*ICM_ERROR_CODE ContinuousControl::add_variable(adm::AudioObject* audio_object, CONTROL_VAR param, float min, float max, CONTROL_VAR_SCALE_TYPE scale_type){
-    
-    variable* the_var = new variable{
-        audio_object,
-        param,
-        min,
-        max,
-        scale_type,        
-    };
-
-    m_variables.push_back(the_var);
-}*/
 
 ToggleControl::ToggleControl(std::string control_label, std::string control_id, std::string control_name,
                             bool control_is_conditional, std::string start_time, std::string end_time, adm::AudioProgramme* prog_ref) : 
      Control(CONTROL_TOGGLE, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
-     m_label(control_label){}
+     m_label(control_label){
+         m_toggle_off->s_off.ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_on->s_on.ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_off->s_off.ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_on->s_on.ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+     }
 
 ToggleControl::ToggleControl(std::string control_id, std::string control_name) : 
     Control(CONTROL_TOGGLE, control_id, control_name){}
@@ -83,18 +78,6 @@ icm_html_cpp::OptionControl::option* OptionControl::add_option(int index, std::s
 
     return the_option;
 
-}
-
-ICM_ERROR_CODE OptionControl::option::add_object(adm::AudioObject* obj_to_add){
-    
-        o_audio_objects.push_back(obj_to_add);
-        return ICM_OK;
-    
-}
-
-ICM_ERROR_CODE OptionControl::option::add_cond_control(Control* control_to_add){
-    o_cond_controls.push_back(control_to_add);
-    return ICM_OK;
 }
 
 
