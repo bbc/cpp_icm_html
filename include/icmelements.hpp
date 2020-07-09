@@ -207,8 +207,8 @@ namespace icm_html_cpp{
             struct state{
                 std::string s_label;
                 bool is_on;
-                substate s_on;
-                substate s_off;
+                substate* s_on;
+                substate* s_off;
             };
             ToggleControl(std::string control_label, std::string control_id, std::string control_name,
                             bool control_is_conditional = 0, std::string start_time = "", std::string end_time = "", adm::AudioProgramme* prog_ref = 0);

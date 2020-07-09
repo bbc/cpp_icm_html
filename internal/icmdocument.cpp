@@ -95,29 +95,17 @@ namespace icm_html_cpp {
                 //TODO: This shit needs sorting out. Convert the substates to pointers.
 
                 std::shared_ptr<ToggleControl> cast_control = std::static_pointer_cast<ToggleControl>(control);
-                for(auto ao = cast_control->m_toggle_off->s_off.ss_audio_objects_str->begin(); ao != cast_control->m_toggle_off->s_off.ss_audio_objects_str->end(); ao++) 
-                    cast_control->m_toggle_off->s_off.ss_audio_objects->push_back(lookup_audio_elem(the_adm, *ao));
+                for(auto ao_str : *(cast_control->m_toggle_off->s_off->ss_audio_objects_str)) cast_control->m_toggle_off->s_off->ss_audio_objects->push_back(lookup_audio_elem(the_adm, ao_str));
+                for(auto ao_str : *(cast_control->m_toggle_off->s_on->ss_audio_objects_str)) cast_control->m_toggle_off->s_off->ss_audio_objects->push_back(lookup_audio_elem(the_adm, ao_str));
+                for(auto ao_str : *(cast_control->m_toggle_on->s_off->ss_audio_objects_str)) cast_control->m_toggle_off->s_off->ss_audio_objects->push_back(lookup_audio_elem(the_adm, ao_str));
+                for(auto ao_str : *(cast_control->m_toggle_on->s_on->ss_audio_objects_str)) cast_control->m_toggle_off->s_off->ss_audio_objects->push_back(lookup_audio_elem(the_adm, ao_str));
 
-                for(auto ao = cast_control->m_toggle_off->s_on.ss_audio_objects_str->begin(); ao != cast_control->m_toggle_off->s_on.ss_audio_objects_str->end(); ao++) 
-                    cast_control->m_toggle_off->s_on.ss_audio_objects->push_back(lookup_audio_elem(the_adm, *ao));
 
-                for(auto ao = cast_control->m_toggle_on->s_off.ss_audio_objects_str->begin(); ao != cast_control->m_toggle_on->s_off.ss_audio_objects_str->end(); ao++) 
-                    cast_control->m_toggle_on->s_off.ss_audio_objects->push_back(lookup_audio_elem(the_adm, *ao));
-
-                for(auto ao = cast_control->m_toggle_on->s_on.ss_audio_objects_str->begin(); ao != cast_control->m_toggle_on->s_on.ss_audio_objects_str->end(); ao++) 
-                    cast_control->m_toggle_on->s_on.ss_audio_objects->push_back(lookup_audio_elem(the_adm, *ao));
-
-                for(auto ao = cast_control->m_toggle_off->s_off.ss_comp_objects_str->begin(); ao != cast_control->m_toggle_off->s_off.ss_comp_objects_str->end(); ao++) 
-                    cast_control->m_toggle_off->s_off.ss_comp_objects->push_back(lookup_audio_elem(the_adm, *ao));
-                
-                for(auto ao = cast_control->m_toggle_off->s_on.ss_comp_objects_str->begin(); ao != cast_control->m_toggle_off->s_on.ss_comp_objects_str->end(); ao++) 
-                    cast_control->m_toggle_off->s_on.ss_comp_objects->push_back(lookup_audio_elem(the_adm, *ao));
-
-                for(auto ao = cast_control->m_toggle_on->s_off.ss_comp_objects_str->begin(); ao != cast_control->m_toggle_on->s_off.ss_comp_objects_str->end(); ao++) 
-                    cast_control->m_toggle_on->s_off.ss_comp_objects->push_back(lookup_audio_elem(the_adm, *ao));
-
-                for(auto ao = cast_control->m_toggle_on->s_on.ss_comp_objects_str->begin(); ao != cast_control->m_toggle_on->s_on.ss_comp_objects_str->end(); ao++) 
-                    cast_control->m_toggle_on->s_on.ss_comp_objects->push_back(lookup_audio_elem(the_adm, *ao));
+                if(cast_control->m_toggle_off->s_off->ss_comp_objects_str) for(auto ao_str : *(cast_control->m_toggle_off->s_off->ss_comp_objects_str)) cast_control->m_toggle_off->s_off->ss_comp_objects->push_back(lookup_audio_elem(the_adm, ao_str));
+                if(cast_control->m_toggle_off->s_off->ss_comp_objects_str) for(auto ao_str : *(cast_control->m_toggle_off->s_on->ss_comp_objects_str)) cast_control->m_toggle_off->s_off->ss_comp_objects->push_back(lookup_audio_elem(the_adm, ao_str));
+                if(cast_control->m_toggle_off->s_off->ss_comp_objects_str) for(auto ao_str : *(cast_control->m_toggle_on->s_off->ss_comp_objects_str)) cast_control->m_toggle_off->s_off->ss_comp_objects->push_back(lookup_audio_elem(the_adm, ao_str));
+                if(cast_control->m_toggle_off->s_off->ss_comp_objects_str) for(auto ao_str : *(cast_control->m_toggle_on->s_on->ss_comp_objects_str)) cast_control->m_toggle_off->s_off->ss_comp_objects->push_back(lookup_audio_elem(the_adm, ao_str));
+               
 
             }
         }
@@ -305,25 +293,21 @@ namespace icm_html_cpp {
                     ToggleControl* c_ctl = reinterpret_cast<ToggleControl*>(ctl.get());
                     str_to_print << "Toggle On, Label: " << c_ctl->m_toggle_on->s_label << ":" << std::endl << "\t Objects On: ";
 
-                    for(auto ao = c_ctl->m_toggle_on->s_on.ss_audio_objects_str->begin(); ao != c_ctl->m_toggle_on->s_on.ss_audio_objects_str->end(); ao++)
-                        str_to_print << *ao << ", ";
+                    for(auto sss : *(c_ctl->m_toggle_on->s_on->ss_audio_objects_str)) str_to_print << sss << ", ";
                     
                     str_to_print << std::endl << "\t Objects Off:";
 
-                    for(auto ao = c_ctl->m_toggle_on->s_off.ss_audio_objects_str->begin(); ao != c_ctl->m_toggle_on->s_off.ss_audio_objects_str->end(); ao++)
-                        str_to_print << *ao << ", ";
+                    for(auto sss : *(c_ctl->m_toggle_on->s_off->ss_audio_objects_str)) str_to_print << sss << ", ";
 
                     str_to_print << std::endl;
 
                     str_to_print << "Toggle Off, Label: " << c_ctl->m_toggle_on->s_label << ":" << std::endl << "\t Objects On: ";
 
-                    for(auto ao = c_ctl->m_toggle_off->s_on.ss_audio_objects_str->begin(); ao != c_ctl->m_toggle_off->s_on.ss_audio_objects_str->end(); ao++)
-                        str_to_print << *ao << ", ";
+                    for(auto sss : *(c_ctl->m_toggle_off->s_on->ss_audio_objects_str)) str_to_print << sss << ", ";
                     
                     str_to_print << std::endl << "\t Objects Off:";
 
-                    for(auto ao = c_ctl->m_toggle_off->s_off.ss_audio_objects_str->begin(); ao != c_ctl->m_toggle_off->s_off.ss_audio_objects_str->end(); ao++)
-                        str_to_print << *ao << ", ";
+                    for(auto sss : *(c_ctl->m_toggle_off->s_off->ss_audio_objects_str)) str_to_print << sss << ", ";
 
                     str_to_print << std::endl;
 
@@ -449,15 +433,21 @@ namespace icm_html_cpp {
           for(rapidxml::xml_node<>* node = control_in->first_node(); node; node = node->next_sibling()){
             std::string node_name = (std::string)(node->name());
             if(node_name == "toggleOn" || node_name == "toggleOff"){
-                ToggleControl::state* the_state = new ToggleControl::state();
-                the_state->is_on = (node_name == "toggleOn");
+                
+                //ToggleControl::state* the_state = new ToggleControl::state();
+
+                bool is_on = (node_name == "toggleOn");
+                ToggleControl::state* the_state = (node_name == "toggleOn") ? the_control->m_toggle_on : the_control->m_toggle_off;
 
 
 
                 for(rapidxml::xml_node<>* tog_child = node->first_node(); tog_child; tog_child = tog_child->next_sibling()){
                      if((std::string) tog_child->name() == "label") the_state->s_label = (std::string)tog_child->value();
                      if((std::string) tog_child->name() == "on" || (std::string) tog_child->name() == "off"){
-                        auto subst = (std::string)(tog_child->name()) == "on" ? &(the_state->s_on) : &(the_state->s_off);
+                        auto subst = (std::string)(tog_child->name()) == "on" ? (the_state->s_on) : (the_state->s_off);
+                        if(subst == nullptr){
+                            subst = new ToggleControl::substate();
+                        }
 
                         subst->ss_audio_objects_str = new std::vector<std::string>();
 

@@ -50,14 +50,39 @@ ToggleControl::ToggleControl(std::string control_label, std::string control_id, 
                             bool control_is_conditional, std::string start_time, std::string end_time, adm::AudioProgramme* prog_ref) : 
      Control(CONTROL_TOGGLE, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
      m_label(control_label){
-         m_toggle_off->s_off.ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
-         m_toggle_on->s_on.ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
-         m_toggle_off->s_off.ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
-         m_toggle_on->s_on.ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_on->s_off = new ToggleControl::substate();
+         m_toggle_on->s_on = new ToggleControl::substate();
+
+         m_toggle_off->s_off = new ToggleControl::substate();
+         m_toggle_off->s_on = new ToggleControl::substate();
+
+         m_toggle_off->s_off->ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_on->s_on->ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_off->s_off->ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_on->s_on->ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
      }
 
 ToggleControl::ToggleControl(std::string control_id, std::string control_name) : 
-    Control(CONTROL_TOGGLE, control_id, control_name){}
+    Control(CONTROL_TOGGLE, control_id, control_name){
+        m_toggle_on = new ToggleControl::state();
+        m_toggle_off = new ToggleControl::state();
+        
+        m_toggle_on->s_off = new ToggleControl::substate();
+        m_toggle_on->s_on = new ToggleControl::substate();
+
+        m_toggle_off->s_off = new ToggleControl::substate();
+        m_toggle_off->s_on = new ToggleControl::substate();
+
+         m_toggle_off->s_off->ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_on->s_on->ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_off->s_off->ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_on->s_on->ss_audio_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+
+         m_toggle_off->s_off->ss_comp_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_on->s_on->ss_comp_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_off->s_off->ss_comp_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+         m_toggle_on->s_on->ss_comp_objects = new std::vector<std::shared_ptr<adm::AudioObject>>();
+    }
 
 
 OptionControl::OptionControl(std::string control_label, std::string control_id, std::string control_name,
