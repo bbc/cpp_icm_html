@@ -15,6 +15,6 @@ find_package(adm REQUIRED)
 
 
 
-add_executable(icm2html icm2html.cpp internal/chunks.cpp internal/icmelements.cpp internal/icmdocument.cpp internal/IVSElements.cpp)
+add_executable(icm2html icm2html.cpp internal/chunks.cpp internal/icmdocument.cpp internal/InteractiveValueSet.cpp internal/Control.cpp internal/Preset.cpp)
 
 target_link_libraries(icm2html PRIVATE adm)

@@ -1,0 +1,11 @@
+BasedOnStyle: LLVM
+AccessModifierOffset: '-4'
+AlignConsecutiveDeclarations: 'true'
+AlignEscapedNewlines: Left
+BreakBeforeBraces: Attach
+ColumnLimit: '0'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
+IndentCaseLabels: 'true'
+IndentWidth: '4'
+TabWidth: '4'
+UseTab: Never
