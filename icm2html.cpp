@@ -1,4 +1,4 @@
-#include "icm2html.hpp"
+#include "libicm.hpp"
 #include "ICMElements.hpp"
 #include "adm.hpp"
 #include "chunks.hpp"
@@ -8,7 +8,7 @@
 #include <fstream>
 #include <getopt.h>
 
-using namespace icm_html_cpp;
+using namespace libicm;
 
 int main(int argc, char *argv[]) {
     static const char   short_opts[] = "hc:a:i:";
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
     printf("blah");
 }
 
-std::shared_ptr<adm::Document> icm_html_cpp::read_adm_xml_file(std::string filePath, ICM_ERROR_CODE &err) {
+std::shared_ptr<adm::Document> libicm::read_adm_xml_file(std::string filePath, ICM_ERROR_CODE &err) {
     std::ifstream adm_file(filePath);
     if (!adm_file.is_open()) {
         ERROR("Could not open ADM file %s\n", filePath.c_str());

@@ -1,11 +1,11 @@
 #include "chunks.hpp"
-#include "icm2html.hpp"
+#include "libicm.hpp"
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <vector>
 
-using namespace icm_html_cpp;
+using namespace libicm;
 
 AudioID::AudioID(int track_index, std::string UID, std::string format_ID_ref, std::string pack_format_ID_ref) : m_track_index(track_index),
                                                                                                                 m_UID(UID),

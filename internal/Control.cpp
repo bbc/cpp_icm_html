@@ -1,5 +1,5 @@
 #include "Control.hpp"
-#include "ICMElements.hpp"
+#include "common.hpp"
 #include "icmdocument.hpp"
 #include <memory>
 #include <stdbool.h>
@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace icm_html_cpp {
+namespace libicm {
 
 //Constructors for elements.
 
@@ -180,7 +180,7 @@ OptionControl::OptionControl(std::string control_label, std::string control_id, 
 
 OptionControl::OptionControl(std::string control_id, std::string control_name) : Control(CONTROL_OPTION, control_id, control_name) {}
 
-icm_html_cpp::OptionControl::option *OptionControl::add_option(int index, std::string label) {
+libicm::OptionControl::option *OptionControl::add_option(int index, std::string label) {
     option *the_option = new option();
 
     the_option->o_index = index;
@@ -226,4 +226,4 @@ void OptionControl::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::x
     ai_node->append_node(o_node);
 }
 
-} // namespace icm_html_cpp
+} // namespace libicm

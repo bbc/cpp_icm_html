@@ -2,14 +2,14 @@
 #define CONTROL_HPP
 
 #include "InteractiveValueSet.hpp"
-#include "icm2html.hpp"
+#include "adm.hpp"
 #include "rapidxml.hpp"
 #include <memory>
 #include <stdio.h>
 #include <string>
 #include <vector>
 
-namespace icm_html_cpp {
+namespace libicm {
 
 //Parent class for Control elements -- is extended by each type of control element
 class Control {
@@ -211,6 +211,6 @@ private:
     state *     m_toggle_off;
 };
 
-} // namespace icm_html_cpp
+} // namespace libicm
 
 #endif

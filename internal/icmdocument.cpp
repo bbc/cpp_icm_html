@@ -4,7 +4,7 @@
 
 #include "rapidxml_ext.h"
 
-namespace icm_html_cpp {
+namespace libicm {
 
 //, adm::Document* the_adm
 ICMDocument *ICMDocument::parse_xml_from_file(char *file_in, std::shared_ptr<adm::Document> the_adm, ICM_ERROR_CODE &error) {
@@ -418,7 +418,7 @@ void ICMDocument::add_continuous_control(rapidxml::xml_node<> *control_in, std::
         }
     }
 
-    m_controls.push_back(std::dynamic_pointer_cast<icm_html_cpp::Control>(the_control));
+    m_controls.push_back(std::dynamic_pointer_cast<libicm::Control>(the_control));
 }
 
 void ICMDocument::add_option_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name) {
@@ -646,4 +646,4 @@ void ICMDocument::write_xml_file(std::string file_path) {
     xml_to_write << *the_xml;
 }
 
-} // namespace icm_html_cpp
+} // namespace libicm

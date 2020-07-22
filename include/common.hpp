@@ -1,16 +1,9 @@
 #include "adm.hpp"
-#include "parse.hpp"
-#include <memory>
-#include <stdio.h>
-#include <string>
-#include <vector>
 
-#pragma GCC system_header
+#ifndef COMMON_HPP
+#define COMMON_HPP
 
-#ifndef ICM2HTMP_HPP
-#define ICM2HTMP_HPP
-
-namespace icm_html_cpp {
+namespace libicm {
 
 #define DEBUGOUT
 //Some useful debug and error reporting functions.
@@ -32,8 +25,6 @@ enum ICM_ERROR_CODE {
     ICM_COULD_NOT_PARSE_DATA
 };
 
-//For reading in ADM files.
-std::shared_ptr<adm::Document> read_adm_xml_file(std::string filePath, ICM_ERROR_CODE &er);
+} // namespace libicm
 
-} // namespace icm_html_cpp
 #endif

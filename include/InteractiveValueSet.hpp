@@ -1,14 +1,14 @@
 #ifndef IVSELEMENTS_HPP
 #define IVSELEMENTS_HPP
 
-#include "icm2html.hpp"
 #include "rapidxml.hpp"
 #include <memory>
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include "common.hpp"
 
-namespace icm_html_cpp {
+namespace libicm {
 
 enum IVS_ELEMENT_TYPE {
     IVS_GAIN,
@@ -76,6 +76,6 @@ public:
     std::vector<IVSElement *>                                              m_elements;
 };
 
-} // namespace icm_html_cpp
+} // namespace libicm
 
 #endif

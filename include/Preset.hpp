@@ -2,15 +2,15 @@
 #ifndef PRESET_HPP
 #define PRESET_HPP
 
-#include "ICMElements.hpp"
-#include "icm2html.hpp"
+#include "common.hpp"
+#include "libicm.hpp"
 #include "rapidxml.hpp"
 #include <memory>
 #include <stdio.h>
 #include <string>
 #include <vector>
 
-namespace icm_html_cpp {
+namespace libicm {
 
 //Represents the loudness metadata element
 class LoudnessMetadata {
@@ -33,7 +33,7 @@ public:
     Preset(std::string preset_ID, std::string preset_name, int preset_index);
 
     std::vector<std::pair<std::shared_ptr<InteractiveValueSet>, std::string>>   m_interactive_value_sets;
-    std::vector<std::pair<std::shared_ptr<icm_html_cpp::Control>, std::string>> m_cond_controls;
+    std::vector<std::pair<std::shared_ptr<libicm::Control>, std::string>> m_cond_controls;
 
     LoudnessMetadata m_loudness;
 
@@ -80,6 +80,6 @@ private:
     int                                                          m_index;
     std::pair<std::shared_ptr<adm::AudioProgramme>, std::string> m_audio_prog;
 };
-} // namespace icm_html_cpp
+} // namespace libicm
 
 #endif

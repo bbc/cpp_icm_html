@@ -2,7 +2,7 @@
 #include "icmdocument.hpp"
 #include "rapidxml.hpp"
 
-using namespace icm_html_cpp;
+using namespace libicm;
 
 Preset::Preset(std::string preset_ID, std::string preset_name, int preset_index) : m_preset_ID(preset_ID),
                                                                                    m_preset_name(preset_name),
@@ -35,7 +35,7 @@ void Preset::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::xml_node
 
     if (m_label.first != "") {
         rapidxml::xml_node<> *label_node = xml_in->allocate_node(rapidxml::node_element, xml_in->allocate_string("label"), xml_in->allocate_string(m_label.first.c_str()));
-        ICMDocument::add_attr_to_node(xml_in, label_node, "lang", m_label.second);
+        ICMDocument::add_attr_to_node(xml_in, label_node, "lang", m_label.second); 
         p_node->append_node(label_node);
     }
 

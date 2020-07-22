@@ -1,0 +1,10 @@
+prefix=
+exec_prefix=
+libdir=
+includedir=
+
+Name: libicm
+Description: icm library
+Version: 
+Libs: -L${libdir} -ladm
+Cflags: -I${includedir}

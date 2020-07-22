@@ -1,9 +1,9 @@
 #include "InteractiveValueSet.hpp"
-#include "ICMElements.hpp"
+#include "common.hpp"
 #include "icmdocument.hpp"
 #include "rapidxml.hpp"
 
-using namespace icm_html_cpp;
+using namespace libicm;
 
 InteractiveValueSet::InteractiveValueSet(std::string ID) : m_IVS_ID(ID) {}
 

@@ -6,3 +6,7 @@ Makefile
 *.chna
 *.cmake
 include/rapidxml*
+install/
+*.so
+*.so.*
+install_manifest.txt

@@ -1,12 +1,12 @@
-#include "icm2html.hpp"
 #include <memory>
 #include <string>
 #include <vector>
+#include "common.hpp"
 
 #ifndef CHUNKS_HPP
 #define CHUNKS_HPP
 
-namespace icm_html_cpp {
+namespace libicm {
 
 class AudioID {
 public:
@@ -36,6 +36,6 @@ private:
     std::vector<std::shared_ptr<AudioID>> m_chna_entries;
 };
 
-} // namespace icm_html_cpp
+} // namespace libicm
 
 #endif //CHNA_HPP
