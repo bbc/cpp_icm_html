@@ -3,14 +3,15 @@
 #define PRESET_HPP
 
 #include "common.hpp"
-#include "libicm.hpp"
+#include "InteractiveValueSet.hpp"
+#include "Control.hpp"
 #include "rapidxml.hpp"
 #include <memory>
 #include <stdio.h>
 #include <string>
 #include <vector>
 
-namespace libicm {
+namespace icm {
 
 //Represents the loudness metadata element
 class LoudnessMetadata {
@@ -31,9 +32,10 @@ public:
 class Preset {
 public:
     Preset(std::string preset_ID, std::string preset_name, int preset_index);
+    Preset(std::string preset_ID, std::string preset_name, int preset_index, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time);
 
     std::vector<std::pair<std::shared_ptr<InteractiveValueSet>, std::string>>   m_interactive_value_sets;
-    std::vector<std::pair<std::shared_ptr<libicm::Control>, std::string>> m_cond_controls;
+    std::vector<std::pair<std::shared_ptr<icm::Control>, std::string>> m_cond_controls;
 
     LoudnessMetadata m_loudness;
 
@@ -66,6 +68,15 @@ public:
         m_label.second = lang;
     }
 
+    std::chrono::nanoseconds get_start_time() { return m_start_time; }
+    void        set_start_time(std::chrono::nanoseconds t) { m_start_time = t; }
+
+    std::chrono::nanoseconds get_duration() { return m_end_time == MINUS1N ? MINUS1N : m_end_time - m_start_time; }
+    void        set_duration(std::chrono::nanoseconds t);
+
+    std::chrono::nanoseconds get_end_time() { return m_end_time; }
+    void        set_end_time(std::chrono::nanoseconds t) { m_end_time = t; }
+
     std::string get_audio_prog_str() { return m_audio_prog.second; }
 
     std::shared_ptr<adm::AudioProgramme> get_audio_prog_ref() { return m_audio_prog.first; }
@@ -79,7 +90,10 @@ private:
     std::pair<std::string, std::string>                          m_label;
     int                                                          m_index;
     std::pair<std::shared_ptr<adm::AudioProgramme>, std::string> m_audio_prog;
+    std::chrono::nanoseconds                                     m_start_time;
+    std::chrono::nanoseconds                                     m_end_time;
+
 };
-} // namespace libicm
+} // namespace icm
 
 #endif

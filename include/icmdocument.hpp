@@ -5,16 +5,19 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include "adm/parse.hpp"
+
+#ifndef ICMDOCUMENT_HPP
+#define ICMDOCUMENT_HPP
 
 #include "Preset.hpp"
 #include "Control.hpp"
 #include "InteractiveValueSet.hpp"
 
 
-#ifndef ICMDOCUMENT_HPP
-#define ICMDOCUMENT_HPP
 
-namespace libicm {
+
+namespace icm {
 
 //To hold the elements of an ICM file - similar to the ADM document.
 class ICMDocument {
@@ -31,6 +34,7 @@ public:
     static void add_attr_to_node(rapidxml::xml_document<> *doc_in, rapidxml::xml_node<> *node_in, std::string attr_name, int attr_value);
     static void add_attr_to_node(rapidxml::xml_document<> *doc_in, rapidxml::xml_node<> *node_in, std::string attr_name, float attr_value);
     static void add_attr_to_node(rapidxml::xml_document<> *doc_in, rapidxml::xml_node<> *node_in, std::string attr_name, bool attr_value);
+    //static void add_attr_to_node(rapidxml::xml_document<> *doc_in, rapidxml::xml_node<> *node_in, std::string attr_name, const char* attr_value);
 
     void add_preset(rapidxml::xml_node<> *preset_in);
     void add_control(rapidxml::xml_node<> *control_in);
@@ -46,12 +50,14 @@ public:
     std::shared_ptr<InteractiveValueSet> lookup_IVS(std::string IVS_ID);
 
 private:
-    void add_continuous_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name);
-    void add_option_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name);
-    void add_toggle_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name);
+    std::shared_ptr<Control> add_continuous_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond);
+    std::shared_ptr<Control> add_option_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond);
+    std::shared_ptr<Control> add_toggle_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond);
 
 };
 
-} // namespace libicm
+
+
+} // namespace icm
 
 #endif

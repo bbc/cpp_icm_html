@@ -1,36 +1,22 @@
-cmake_minimum_required(VERSION 3.13)
-
-project(libicm)
-
-set(CMAKE_CXX_STANDARD 11)
-
-include(GNUInstallDirs)
-
-include_directories(include /opt/local/include/adm/)
-
+#Start
+cmake_minimum_required(VERSION 3.10)
+project(icm_proj)
 set(CMAKE_BUILD_TYPE Debug)
 
+#Include ADM
+include_directories(include /opt/local/include/adm/)
 list(APPEND CMAKE_PREFIX_PATH "/opt/local/share/cmake/adm/")
-
 find_package(adm REQUIRED)
 
+#Build library
+add_library(icm SHARED internal/chunks.cpp internal/icmdocument.cpp internal/InteractiveValueSet.cpp internal/Control.cpp internal/Preset.cpp)
 
-add_library(libicm SHARED internal/chunks.cpp internal/icmdocument.cpp internal/InteractiveValueSet.cpp internal/Control.cpp internal/Preset.cpp)
+#Link against libadm
+target_link_libraries(icm PRIVATE adm)
 
-target_link_libraries(libicm PRIVATE adm)
+#Install library
+install(TARGETS icm DESTINATION lib)
+install(FILES include/libicm.hpp include/Preset.hpp include/chunks.hpp include/Control.hpp include/InteractiveValueSet.hpp include/common.hpp include/icmdocument.hpp DESTINATION include/icm)
 
 
-set_target_properties(libicm PROPERTIES
-    SOVERSION 1
-    PUBLIC_HEADER include/libicm.hpp)
 
-configure_file(libicm.pc.in libicm.pc @ONLY)
-
-target_include_directories(libicm PRIVATE ./include)
-
-install(TARGETS libicm
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-install(FILES ${CMAKE_BINARY_DIR}/libicm.pc
-    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)

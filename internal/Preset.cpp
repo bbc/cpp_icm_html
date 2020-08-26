@@ -2,11 +2,18 @@
 #include "icmdocument.hpp"
 #include "rapidxml.hpp"
 
-using namespace libicm;
+using namespace icm;
 
 Preset::Preset(std::string preset_ID, std::string preset_name, int preset_index) : m_preset_ID(preset_ID),
                                                                                    m_preset_name(preset_name),
                                                                                    m_index(preset_index) {}
+
+Preset::Preset(std::string preset_ID, std::string preset_name, int preset_index, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time)
+    : m_preset_ID(preset_ID),
+      m_preset_name(preset_name),
+      m_index(preset_index),
+      m_start_time(start_time),
+      m_end_time(end_time) {}
 
 void Preset::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::xml_node<> *ai_node) {
     rapidxml::xml_node<> *p_node = xml_in->allocate_node(rapidxml::node_element, xml_in->allocate_string("preset"));
@@ -14,6 +21,13 @@ void Preset::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::xml_node
     ICMDocument::add_attr_to_node(xml_in, p_node, "presetID", m_preset_ID);
     ICMDocument::add_attr_to_node(xml_in, p_node, "presetName", m_preset_name);
     ICMDocument::add_attr_to_node(xml_in, p_node, "presetIndex", m_index);
+
+    if (get_duration() != std::chrono::nanoseconds(0)) {
+        ICMDocument::add_attr_to_node(xml_in, p_node, "start", adm::formatTimecode(get_start_time()));
+        ICMDocument::add_attr_to_node(xml_in, p_node, "duration", adm::formatTimecode(get_duration()));
+    } else if (get_start_time() != std::chrono::nanoseconds(0)) {
+        ICMDocument::add_attr_to_node(xml_in, p_node, "start", adm::formatTimecode(get_start_time()));
+    }
 
     if (m_audio_prog.second != "") {
         rapidxml::xml_node<> *var_ap_node = xml_in->allocate_node(rapidxml::node_element, xml_in->allocate_string("audioProgrammeIDRef"), xml_in->allocate_string(m_audio_prog.second.c_str()));
@@ -35,7 +49,7 @@ void Preset::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::xml_node
 
     if (m_label.first != "") {
         rapidxml::xml_node<> *label_node = xml_in->allocate_node(rapidxml::node_element, xml_in->allocate_string("label"), xml_in->allocate_string(m_label.first.c_str()));
-        ICMDocument::add_attr_to_node(xml_in, label_node, "lang", m_label.second); 
+        ICMDocument::add_attr_to_node(xml_in, label_node, "lang", m_label.second);
         p_node->append_node(label_node);
     }
 

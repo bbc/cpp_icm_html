@@ -8,7 +8,7 @@
 #include <vector>
 #include "common.hpp"
 
-namespace libicm {
+namespace icm {
 
 enum IVS_ELEMENT_TYPE {
     IVS_GAIN,
@@ -76,6 +76,6 @@ public:
     std::vector<IVSElement *>                                              m_elements;
 };
 
-} // namespace libicm
+} // namespace icm
 
 #endif

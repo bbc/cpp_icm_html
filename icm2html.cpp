@@ -8,7 +8,7 @@
 #include <fstream>
 #include <getopt.h>
 
-using namespace libicm;
+using namespace icm;
 
 int main(int argc, char *argv[]) {
     static const char   short_opts[] = "hc:a:i:";
@@ -80,20 +80,3 @@ int main(int argc, char *argv[]) {
     printf("blah");
 }
 
-std::shared_ptr<adm::Document> libicm::read_adm_xml_file(std::string filePath, ICM_ERROR_CODE &err) {
-    std::ifstream adm_file(filePath);
-    if (!adm_file.is_open()) {
-        ERROR("Could not open ADM file %s\n", filePath.c_str());
-        err = ICM_COULD_NOT_OPEN_FILE;
-        return nullptr;
-    } else {
-        std::shared_ptr<adm::Document> the_adm;
-        //try{
-        the_adm = adm::parseXml(adm_file, adm::xml::ParserOptions::recursive_node_search);
-        // } catch (std::exception e){
-        //ERROR("Could not create ADM object: %s", e.what());
-        //return nullptr;
-        //}
-        return the_adm;
-    }
-}

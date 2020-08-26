@@ -1,11 +1,11 @@
+#include "common.hpp"
 #include "chunks.hpp"
-#include "libicm.hpp"
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <vector>
 
-using namespace libicm;
+using namespace icm;
 
 AudioID::AudioID(int track_index, std::string UID, std::string format_ID_ref, std::string pack_format_ID_ref) : m_track_index(track_index),
                                                                                                                 m_UID(UID),
@@ -20,7 +20,7 @@ Chna::Chna(int test) {
     ;
 }
 
-std::shared_ptr<Chna> Chna::read_chna_file(std::string filePath, ICM_ERROR_CODE &error_code) {
+std::shared_ptr<Chna> Chna::read_chna_file(std::string filePath, ICM_ERROR_CODE &error_code, std::vector<std::shared_ptr<adm::AudioObject>>* aos) {
     std::ifstream chna_file(filePath);
     if (!chna_file.is_open()) {
         ERROR("Could not open CHNA file %s\n", filePath.c_str());
@@ -56,7 +56,11 @@ std::shared_ptr<Chna> Chna::read_chna_file(std::string filePath, ICM_ERROR_CODE 
             else
                 pack_format_ID_ref = "";
 
-            the_chna->m_chna_entries.push_back(AudioID::get_audioID(track_index, UID, format_id_ref, pack_format_ID_ref));
+            auto the_id = AudioID::get_audioID(track_index, UID, format_id_ref, pack_format_ID_ref);
+
+            the_id->resolve_aos(aos);
+
+            the_chna->m_chna_entries.push_back(the_id);
         }
         return the_chna;
     }
@@ -76,4 +80,22 @@ int Chna::get_num_of_tracks() {
 
 int Chna::get_num_of_uids() {
     return m_num_of_uids;
+}
+
+void AudioID::resolve_aos(std::vector<std::shared_ptr<adm::AudioObject>>* aos){
+    for (auto ao : *aos){
+        auto ao_uids =  ao->getReferences<adm::AudioTrackUid>();
+        for(auto uid : ao_uids){
+            auto id = uid->get<adm::AudioTrackUidId>();
+	        auto id_string = adm::formatId(id);
+
+
+
+            if(strcmp(m_UID.c_str(), id_string.c_str()) == 0) {
+                std::shared_ptr<adm::AudioObject> the_sp = ao;
+                std::string ao_name = adm::formatId(ao->get<adm::AudioObjectId>());
+                m_AOs.push_back(std::make_pair<std::shared_ptr<adm::AudioObject>, std::string>(std::move(the_sp), std::move(id_string)));
+            }
+        }
+    }
 }

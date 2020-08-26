@@ -9,7 +9,10 @@
 #include <string>
 #include <vector>
 
-namespace libicm {
+#define ZERON   std::chrono::nanoseconds(0)
+#define MINUS1N std::chrono::nanoseconds(-1)
+
+namespace icm {
 
 //Parent class for Control elements -- is extended by each type of control element
 class Control {
@@ -43,7 +46,9 @@ public:
 
     std::vector<std::string> m_VAR_SCALES = {"linear", "log", "invlog"};
 
-    Control(CONTROL_TYPE control_type, std::string control_id, std::string control_name, bool control_is_conditional = 0, std::string start_time = "", std::string end_time = "", adm::AudioProgramme *prog_ref = 0);
+    Control(CONTROL_TYPE control_type, std::string control_id, std::string control_name, bool control_is_conditional = 0, 
+        std::chrono::nanoseconds start_time = std::chrono::nanoseconds(0), 
+        std::chrono::nanoseconds end_time = std::chrono::nanoseconds(-1), adm::AudioProgramme *prog_ref = 0);
     Control();
 
     CONTROL_TYPE get_control_type() { return m_control_type; }
@@ -58,8 +63,14 @@ public:
     bool get_control_conditionality() { return m_control_is_conditional; }
     void set_control_conditionality(bool is_cond) { m_control_is_conditional = is_cond; }
 
-    std::string get_start_time() { return m_start_time; }
-    void        set_start_time(std::string t) { m_start_time = t; }
+    std::chrono::nanoseconds get_start_time() { return m_start_time; }
+    void        set_start_time(std::chrono::nanoseconds t) { m_start_time = t; }
+
+    std::chrono::nanoseconds get_duration() { return m_end_time == MINUS1N ? MINUS1N : m_end_time - m_start_time; }
+    void        set_duration(std::chrono::nanoseconds t);
+
+    std::chrono::nanoseconds get_end_time() { return m_end_time; }
+    void        set_end_time(std::chrono::nanoseconds t) { m_end_time = t; }
 
     adm::AudioProgramme *get_programme_ref() {
         return m_programme_ref;
@@ -69,13 +80,13 @@ public:
     }
 
 private:
-    CONTROL_TYPE         m_control_type;
-    std::string          m_control_ID;
-    std::string          m_control_name;
-    bool                 m_control_is_conditional;
-    std::string          m_start_time;
-    std::string          m_end_time;
-    adm::AudioProgramme *m_programme_ref;
+    CONTROL_TYPE             m_control_type;
+    std::string              m_control_ID;
+    std::string              m_control_name;
+    bool                     m_control_is_conditional;
+    std::chrono::nanoseconds m_start_time;
+    std::chrono::nanoseconds m_end_time;
+    adm::AudioProgramme *    m_programme_ref;
 
     virtual void add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::xml_node<> *ai_node) = 0;
 };
@@ -84,13 +95,11 @@ class ContinuousControl : public Control {
 public:
     ContinuousControl(std::string control_label, std::string control_id, std::string control_name,
                       float min, float max, float step = 0,
-                      bool control_is_conditional = 0, std::string start_time = "", std::string end_time = "", adm::AudioProgramme *prog_ref = 0);
-
-    ContinuousControl(std::string control_id, std::string control_name,
-                      float min, float max, float step = 0,
-                      bool control_is_conditional = 0, std::string start_time = "", std::string end_time = "", adm::AudioProgramme *prog_ref = 0);
+                      bool control_is_conditional = 0, std::chrono::nanoseconds start_time = ZERON, std::chrono::nanoseconds end_time = MINUS1N, adm::AudioProgramme *prog_ref = 0);
 
     ContinuousControl(std::string control_id, std::string control_name);
+
+    ContinuousControl(std::string control_id, std::string control_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond);
 
     struct variable {
         std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>> v_audio_objects;
@@ -139,9 +148,11 @@ public:
     };
 
     OptionControl(std::string control_label, std::string control_id, std::string control_name,
-                  bool control_is_conditional = 0, std::string start_time = "", std::string end_time = "", adm::AudioProgramme *prog_ref = 0);
+                  bool control_is_conditional = 0, std::chrono::nanoseconds start_time = ZERON, std::chrono::nanoseconds end_time = MINUS1N, adm::AudioProgramme *prog_ref = 0);
 
     OptionControl(std::string control_id, std::string control_name);
+
+    OptionControl(std::string control_id, std::string control_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond);
 
     option *add_option(int index, std::string label);
 
@@ -188,9 +199,13 @@ public:
     };
 
     ToggleControl(std::string control_label, std::string control_id, std::string control_name,
-                  bool control_is_conditional = 0, std::string start_time = "", std::string end_time = "", adm::AudioProgramme *prog_ref = 0);
+                  bool control_is_conditional = 0, std::chrono::nanoseconds start_time = ZERON, std::chrono::nanoseconds end_time = MINUS1N, adm::AudioProgramme *prog_ref = 0);
 
     ToggleControl(std::string control_id, std::string control_name);
+
+    ToggleControl(std::string control_id, std::string control_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond);
+
+
     void add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::xml_node<> *ai_node);
 
     std::string get_label() {
@@ -211,6 +226,6 @@ private:
     state *     m_toggle_off;
 };
 
-} // namespace libicm
+} // namespace icm
 
 #endif

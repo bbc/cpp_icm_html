@@ -4,7 +4,7 @@
 
 #include "rapidxml_ext.h"
 
-namespace libicm {
+namespace icm {
 
 //, adm::Document* the_adm
 ICMDocument *ICMDocument::parse_xml_from_file(char *file_in, std::shared_ptr<adm::Document> the_adm, ICM_ERROR_CODE &error) {
@@ -37,6 +37,8 @@ ICMDocument *ICMDocument::parse_xml_from_file(char *file_in, std::shared_ptr<adm
         else
             ERROR("Unknown node seen in AudioInteraction: %s\n", node_name.c_str());
     }
+
+
 
     //As the references are only stored as strings currently, this function will resolve those string identifiers into pointers and add them to the appropriate elements.
     the_icm->make_references(the_adm);
@@ -72,8 +74,9 @@ void ICMDocument::make_references(std::shared_ptr<adm::Document> the_adm) {
                 cont.first = lookup_control(cont.second);
             }
         }
-        for (auto ivs : preset->m_interactive_value_sets) {
-            ivs.first = lookup_IVS(ivs.second);
+
+        for(int b = 0; b < preset->m_interactive_value_sets.size(); b++){
+            preset->m_interactive_value_sets[b].first = lookup_IVS(preset->m_interactive_value_sets[b].second);
         }
     }
 
@@ -332,8 +335,19 @@ std::shared_ptr<InteractiveValueSet> ICMDocument::lookup_IVS(std::string IVS_ID)
 
 void ICMDocument::add_control(rapidxml::xml_node<> *control_in) {
 
+    enum CTYPE {
+        CONT,
+        OPT,
+        TOG
+    };
+
     std::string c_name;
     std::string c_ID;
+    std::chrono::nanoseconds start_time = std::chrono::nanoseconds(0);
+    std::chrono::nanoseconds end_time = std::chrono::nanoseconds(-1);
+    std::chrono::nanoseconds dur = std::chrono::nanoseconds(-1);
+    CTYPE c_type;
+    bool is_cond = false;
     //scan attributes of control tag as they are the same across all types of control
     for (rapidxml::xml_attribute<> *attrib = control_in->first_attribute(); attrib; attrib = attrib->next_attribute()) {
         std::string attrib_name = (std::string)(attrib->name());
@@ -343,21 +357,47 @@ void ICMDocument::add_control(rapidxml::xml_node<> *control_in) {
             c_name = (std::string)attrib->value();
         else if (attrib_name == "type") {
             if ((std::string)attrib->value() == "continuous")
-                add_continuous_control(control_in, c_ID, c_name);
+                c_type = CONT;
             else if ((std::string)attrib->value() == "option")
-                add_option_control(control_in, c_ID, c_name);
+                c_type = OPT;
             else if ((std::string)attrib->value() == "toggle")
-                add_toggle_control(control_in, c_ID, c_name);
+                c_type = TOG;
+        }
+        else if(attrib_name == "conditional"){
+            if ((std::string)attrib->value() == "1") is_cond = true;
+        }
+        else if(attrib_name == "start"){
+            start_time = adm::parseTimecode((std::string)attrib->value());
+        }
+        else if(attrib_name == "duration"){
+            dur = adm::parseTimecode((std::string)attrib->value());
         }
     }
+
+    if(dur != std::chrono::nanoseconds(-1)){
+        end_time = start_time + dur;
+    }
+
+    switch(c_type){
+        case CONT:
+            add_continuous_control(control_in, c_ID, c_name, start_time, end_time, is_cond);
+            break;
+        case OPT:
+            add_option_control(control_in, c_ID, c_name, start_time, end_time, is_cond);
+            break;
+        case TOG:
+            add_toggle_control(control_in, c_ID, c_name, start_time, end_time, is_cond);
+    }
+
+
 }
 
-void ICMDocument::add_continuous_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name) {
+std::shared_ptr<Control> ICMDocument::add_continuous_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond) {
     //step is optional
     float       min, max, step = 0.0;
     std::string label;
 
-    auto the_control = std::shared_ptr<ContinuousControl>(new ContinuousControl(c_ID, c_name));
+    auto the_control = std::shared_ptr<ContinuousControl>(new ContinuousControl(c_ID, c_name, start_time, end_time, is_cond));
 
     //Firstly, scan all nodes
     for (rapidxml::xml_node<> *node = control_in->first_node(); node; node = node->next_sibling()) {
@@ -418,21 +458,21 @@ void ICMDocument::add_continuous_control(rapidxml::xml_node<> *control_in, std::
         }
     }
 
-    m_controls.push_back(std::dynamic_pointer_cast<libicm::Control>(the_control));
+    m_controls.push_back(std::dynamic_pointer_cast<icm::Control>(the_control));
 }
 
-void ICMDocument::add_option_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name) {
+std::shared_ptr<Control> ICMDocument::add_option_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond) {
 
     std::string label;
 
-    auto the_control = std::shared_ptr<OptionControl>(new OptionControl(c_ID, c_name));
+    auto the_control = std::shared_ptr<OptionControl>(new OptionControl(c_ID, c_name, start_time, end_time, is_cond));
 
     for (rapidxml::xml_node<> *node = control_in->first_node(); node; node = node->next_sibling()) {
         std::string node_name = (std::string)(node->name());
         if (node_name == "option") {
             OptionControl::option *the_opt = new OptionControl::option();
             for (rapidxml::xml_attribute<> *attrib = node->first_attribute(); attrib; attrib = attrib->next_attribute()) {
-                std::string val = (std::string)attrib->value();
+                std::string val = (std::string)attrib->name();
                 if (val == "index")
                     the_opt->o_index = std::stoi((std::string)attrib->value());
             }
@@ -453,10 +493,10 @@ void ICMDocument::add_option_control(rapidxml::xml_node<> *control_in, std::stri
     m_controls.push_back(std::dynamic_pointer_cast<Control>(the_control));
 }
 
-void ICMDocument::add_toggle_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name) {
+std::shared_ptr<Control> ICMDocument::add_toggle_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond) {
     std::string label;
 
-    auto the_control = std::shared_ptr<ToggleControl>(new ToggleControl(c_ID, c_name));
+    auto the_control = std::shared_ptr<ToggleControl>(new ToggleControl(c_ID, c_name, start_time, end_time, is_cond));
 
     for (rapidxml::xml_node<> *node = control_in->first_node(); node; node = node->next_sibling()) {
         std::string node_name = (std::string)(node->name());
@@ -493,8 +533,10 @@ void ICMDocument::add_toggle_control(rapidxml::xml_node<> *control_in, std::stri
 
 void ICMDocument::add_preset(rapidxml::xml_node<> *preset_in) {
 
-    std::string pid, pname;
-    int         pindex;
+    std::string                 pid, pname;
+    int                         pindex;
+    std::chrono::nanoseconds    pstart = std::chrono::nanoseconds(0);
+    std::chrono::nanoseconds    pend = std::chrono::nanoseconds(-1);
 
     for (rapidxml::xml_attribute<> *attrib = preset_in->first_attribute(); attrib; attrib = attrib->next_attribute()) {
         std::string attrib_name = (std::string)(attrib->name());
@@ -506,7 +548,7 @@ void ICMDocument::add_preset(rapidxml::xml_node<> *preset_in) {
             pindex = std::stoi((std::string)attrib->value());
     }
 
-    std::shared_ptr<Preset> the_preset = std::shared_ptr<Preset>(new Preset(pid, pname, pindex));
+    std::shared_ptr<Preset> the_preset = std::shared_ptr<Preset>(new Preset(pid, pname, pindex, pstart, pend));
 
     the_preset->m_loudness.m_exists = false; //loudness metadata is optional, so have a bool to indicate if it's there
 
@@ -627,6 +669,11 @@ void ICMDocument::add_attr_to_node(rapidxml::xml_document<> *doc_in, rapidxml::x
     }
 }
 
+/*
+void ICMDocument::add_attr_to_node(rapidxml::xml_document<> *doc_in, rapidxml::xml_node<> *node_in, std::string attr_name, const char* attr_value) {
+    ICMDocument::add_attr_to_node(doc_in, node_in, attr_name, (std::string) attr_value);
+}*/
+
 void ICMDocument::write_xml_file(std::string file_path) {
     rapidxml::xml_document<> *the_xml = new rapidxml::xml_document<>;
     rapidxml::xml_node<> *    ai_node = the_xml->allocate_node(rapidxml::node_element, the_xml->allocate_string("audioInteraction"));
@@ -646,4 +693,23 @@ void ICMDocument::write_xml_file(std::string file_path) {
     xml_to_write << *the_xml;
 }
 
-} // namespace libicm
+std::shared_ptr<adm::Document> read_adm_xml_file(std::string filePath, ICM_ERROR_CODE &err) {
+    std::ifstream adm_file(filePath);
+    if (!adm_file.is_open()) {
+        ERROR("Could not open ADM file %s\n", filePath.c_str());
+        err = ICM_COULD_NOT_OPEN_FILE;
+        return nullptr;
+    } else {
+        std::shared_ptr<adm::Document> the_adm;
+        //try{
+        the_adm = adm::parseXml(adm_file, adm::xml::ParserOptions::recursive_node_search);
+        // } catch (std::exception e){
+        //ERROR("Could not create ADM object: %s", e.what());
+        //return nullptr;
+        //}
+        return the_adm;
+
+    }
+}
+
+} // namespace icm

@@ -3,7 +3,7 @@
 #include "icmdocument.hpp"
 #include "rapidxml.hpp"
 
-using namespace libicm;
+using namespace icm;
 
 InteractiveValueSet::InteractiveValueSet(std::string ID) : m_IVS_ID(ID) {}
 

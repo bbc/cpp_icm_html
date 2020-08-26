@@ -5,20 +5,21 @@
 #include <string>
 #include <vector>
 
+#include "common.hpp"
 #include "Preset.hpp"
 #include "Control.hpp"
 #include "chunks.hpp"
 #include "InteractiveValueSet.hpp"
+#include "icmdocument.hpp"
 
 #pragma GCC system_header
 
 #ifndef LIBICM_HPP
 #define LIBICM_HPP
 
-namespace libicm {
+namespace icm {
 
 //For reading in ADM files.
-std::shared_ptr<adm::Document> read_adm_xml_file(std::string filePath, ICM_ERROR_CODE &er);
 
-} // namespace libicm
+} // namespace icm
 #endif

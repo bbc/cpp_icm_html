@@ -3,7 +3,7 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
-namespace libicm {
+namespace icm {
 
 #define DEBUGOUT
 //Some useful debug and error reporting functions.
@@ -25,6 +25,9 @@ enum ICM_ERROR_CODE {
     ICM_COULD_NOT_PARSE_DATA
 };
 
-} // namespace libicm
+std::shared_ptr<adm::Document> read_adm_xml_file(std::string filePath, ICM_ERROR_CODE &er);
+
+
+} // namespace icm
 
 #endif

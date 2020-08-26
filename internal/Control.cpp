@@ -7,11 +7,12 @@
 #include <string>
 #include <vector>
 
-namespace libicm {
+namespace icm {
 
 //Constructors for elements.
 
-Control::Control(CONTROL_TYPE control_type, std::string control_id, std::string control_name, bool control_is_conditional, std::string start_time, std::string end_time, adm::AudioProgramme *prog_ref)
+Control::Control(CONTROL_TYPE control_type, std::string control_id, std::string control_name, bool control_is_conditional,
+                 std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, adm::AudioProgramme *prog_ref)
     : m_control_type(control_type),
       m_control_ID(control_id),
       m_control_name(control_name),
@@ -19,16 +20,20 @@ Control::Control(CONTROL_TYPE control_type, std::string control_id, std::string 
       m_start_time(start_time),
       m_end_time(end_time),
       m_programme_ref(prog_ref) {}
+
 ContinuousControl::ContinuousControl(std::string control_label, std::string control_id, std::string control_name,
                                      float min, float max, float step,
-                                     bool control_is_conditional, std::string start_time, std::string end_time, adm::AudioProgramme *prog_ref) : Control(CONTROL_CONTINUOUS, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
-                                                                                                                                                 m_label(control_label) {
+                                     bool control_is_conditional, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, adm::AudioProgramme *prog_ref)
+    : Control(CONTROL_CONTINUOUS, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
+      m_label(control_label) {
     m_range.r_max = max;
     m_range.r_min = min;
     m_range.r_step = step;
 }
 
 ContinuousControl::ContinuousControl(std::string control_id, std::string control_name) : Control(CONTROL_CONTINUOUS, control_id, control_name) {}
+
+ContinuousControl::ContinuousControl(std::string control_id, std::string control_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond) : Control(CONTROL_CONTINUOUS, control_id, control_name, is_cond, start_time, end_time) {}
 
 ICM_ERROR_CODE ContinuousControl::add_variable(ContinuousControl::variable *var_in) {
     m_variables.push_back(var_in);
@@ -40,6 +45,16 @@ void ContinuousControl::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxm
     ICMDocument::add_attr_to_node(xml_in, c_node, "controlID", get_control_ID());
     ICMDocument::add_attr_to_node(xml_in, c_node, "controlName", get_control_name());
     ICMDocument::add_attr_to_node(xml_in, c_node, "type", std::string("continuous"));
+    if(get_control_conditionality()) ICMDocument::add_attr_to_node(xml_in, c_node, "conditional", std::string("1"));
+
+    if(get_duration() != std::chrono::nanoseconds(0)){
+        ICMDocument::add_attr_to_node(xml_in, c_node, "start", adm::formatTimecode(get_start_time()));
+        ICMDocument::add_attr_to_node(xml_in, c_node, "duration", adm::formatTimecode(get_duration()));
+    }
+    else if(get_start_time() != std::chrono::nanoseconds(0)){
+        ICMDocument::add_attr_to_node(xml_in, c_node, "start", adm::formatTimecode(get_start_time()));
+    }
+
 
     rapidxml::xml_node<> *range_node = xml_in->allocate_node(rapidxml::node_element, xml_in->allocate_string("range"));
 
@@ -76,8 +91,10 @@ void ContinuousControl::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxm
 }
 
 ToggleControl::ToggleControl(std::string control_label, std::string control_id, std::string control_name,
-                             bool control_is_conditional, std::string start_time, std::string end_time, adm::AudioProgramme *prog_ref) : Control(CONTROL_TOGGLE, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
-                                                                                                                                         m_label(control_label) {
+                             bool control_is_conditional, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time,
+                             adm::AudioProgramme *prog_ref)
+    : Control(CONTROL_TOGGLE, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
+      m_label(control_label) {
     m_toggle_on->s_off = new ToggleControl::substate();
     m_toggle_on->s_on = new ToggleControl::substate();
 
@@ -111,12 +128,44 @@ ToggleControl::ToggleControl(std::string control_id, std::string control_name) :
     m_toggle_on->s_on->ss_comp_objects = new std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>>();
 }
 
+ToggleControl::ToggleControl(std::string control_id, std::string control_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond)
+    : Control(CONTROL_TOGGLE, control_id, control_name, is_cond, start_time, end_time){
+    m_toggle_on = new ToggleControl::state();
+    m_toggle_off = new ToggleControl::state();
+
+    m_toggle_on->s_off = new ToggleControl::substate();
+    m_toggle_on->s_on = new ToggleControl::substate();
+
+    m_toggle_off->s_off = new ToggleControl::substate();
+    m_toggle_off->s_on = new ToggleControl::substate();
+
+    m_toggle_off->s_on->ss_audio_objects = new std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>>();
+    m_toggle_on->s_on->ss_audio_objects = new std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>>();
+    m_toggle_off->s_off->ss_audio_objects = new std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>>();
+    m_toggle_on->s_off->ss_audio_objects = new std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>>();
+
+    m_toggle_off->s_on->ss_comp_objects = new std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>>();
+    m_toggle_on->s_on->ss_comp_objects = new std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>>();
+    m_toggle_off->s_off->ss_comp_objects = new std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>>();
+    m_toggle_on->s_off->ss_comp_objects = new std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>>();
+}
+
 void ToggleControl::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::xml_node<> *ai_node) {
     rapidxml::xml_node<> *t_node = xml_in->allocate_node(rapidxml::node_element, xml_in->allocate_string("control"));
 
     ICMDocument::add_attr_to_node(xml_in, t_node, "controlID", get_control_ID());
     ICMDocument::add_attr_to_node(xml_in, t_node, "controlName", get_control_name());
     ICMDocument::add_attr_to_node(xml_in, t_node, "type", std::string("toggle"));
+    if(get_control_conditionality()) ICMDocument::add_attr_to_node(xml_in, t_node, "conditional", std::string("1"));
+
+    if(get_duration() != std::chrono::nanoseconds(0)){
+        ICMDocument::add_attr_to_node(xml_in, t_node, "start", adm::formatTimecode(get_start_time()));
+        ICMDocument::add_attr_to_node(xml_in, t_node, "duration", adm::formatTimecode(get_duration()));
+    }
+    else if(get_start_time() != std::chrono::nanoseconds(0)){
+        ICMDocument::add_attr_to_node(xml_in, t_node, "start", adm::formatTimecode(get_start_time()));
+    }
+
 
     rapidxml::xml_node<> *togon_node = xml_in->allocate_node(rapidxml::node_element, xml_in->allocate_string("toggleOn"));
     do_toggle_state(true, xml_in, togon_node, t_node);
@@ -175,12 +224,15 @@ void ToggleControl::do_toggle_state(bool isOn, rapidxml::xml_document<> *xml_in,
 }
 
 OptionControl::OptionControl(std::string control_label, std::string control_id, std::string control_name,
-                             bool control_is_conditional, std::string start_time, std::string end_time, adm::AudioProgramme *prog_ref) : Control(CONTROL_OPTION, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
+                             bool control_is_conditional, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, adm::AudioProgramme *prog_ref) : Control(CONTROL_OPTION, control_id, control_name, control_is_conditional, start_time, end_time, prog_ref),
                                                                                                                                          m_label(control_label) {}
 
 OptionControl::OptionControl(std::string control_id, std::string control_name) : Control(CONTROL_OPTION, control_id, control_name) {}
 
-libicm::OptionControl::option *OptionControl::add_option(int index, std::string label) {
+OptionControl::OptionControl(std::string control_id, std::string control_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond) : 
+     Control(CONTROL_OPTION, control_id, control_name, is_cond, start_time, end_time) {}
+
+icm::OptionControl::option *OptionControl::add_option(int index, std::string label) {
     option *the_option = new option();
 
     the_option->o_index = index;
@@ -196,6 +248,15 @@ void OptionControl::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::x
     ICMDocument::add_attr_to_node(xml_in, o_node, "controlID", get_control_ID());
     ICMDocument::add_attr_to_node(xml_in, o_node, "controlName", get_control_name());
     ICMDocument::add_attr_to_node(xml_in, o_node, "type", std::string("option"));
+    if(get_control_conditionality()) ICMDocument::add_attr_to_node(xml_in, o_node, "conditional", std::string("1"));
+
+    if(get_duration() != std::chrono::nanoseconds(0)){
+        ICMDocument::add_attr_to_node(xml_in, o_node, "start", adm::formatTimecode(get_start_time()));
+        ICMDocument::add_attr_to_node(xml_in, o_node, "duration", adm::formatTimecode(get_duration()));
+    }
+    else if(get_start_time() != std::chrono::nanoseconds(0)){
+        ICMDocument::add_attr_to_node(xml_in, o_node, "start", adm::formatTimecode(get_start_time()));
+    }
 
     for (auto opt : m_options) {
         rapidxml::xml_node<> *opt_node = xml_in->allocate_node(rapidxml::node_element, xml_in->allocate_string("option"));
@@ -226,4 +287,4 @@ void OptionControl::add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::x
     ai_node->append_node(o_node);
 }
 
-} // namespace libicm
+} // namespace icm
