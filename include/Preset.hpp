@@ -2,9 +2,9 @@
 #ifndef PRESET_HPP
 #define PRESET_HPP
 
-#include "common.hpp"
-#include "InteractiveValueSet.hpp"
 #include "Control.hpp"
+#include "InteractiveValueSet.hpp"
+#include "common.hpp"
 #include "rapidxml.hpp"
 #include <memory>
 #include <stdio.h>
@@ -31,15 +31,41 @@ public:
 //Represents a Preset element
 class Preset {
 public:
+    /**
+     * Constructor for Preset
+     * @param[in] preset_ID the preset's ID
+     * @param[in] preset_name the name of the preset
+     * @param[in] preset_index the position in the list this preset should show up in
+     */
     Preset(std::string preset_ID, std::string preset_name, int preset_index);
+
+    /**
+     * Constructor for Preset
+     * @param[in] preset_ID the preset's ID
+     * @param[in] preset_name the name of the preset
+     * @param[in] preset_index the position in the list this preset should show up in
+     * @param[in] start_time The offset from the start of the media which this control becomes valid
+     * @param[in] end_time The offset from the start of the media which this control ceases to be valid
+     */
     Preset(std::string preset_ID, std::string preset_name, int preset_index, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time);
 
-    std::vector<std::pair<std::shared_ptr<InteractiveValueSet>, std::string>>   m_interactive_value_sets;
-    std::vector<std::pair<std::shared_ptr<icm::Control>, std::string>> m_cond_controls;
+    std::vector<std::pair<std::shared_ptr<InteractiveValueSet>, std::string>> m_interactive_value_sets;
+    std::vector<std::pair<std::shared_ptr<icm::Control>, std::string>>        m_cond_controls;
 
     LoudnessMetadata m_loudness;
 
+    /**
+     * Adds the XML for the preset into a RapidXML document.
+     * @param[in] xml_in Reference to the XML document
+     * @param[in] ai_node The parent node to attach this control's XML to
+     */
     void add_xml_to_doc(rapidxml::xml_document<> *xml_in, rapidxml::xml_node<> *ai_node);
+
+    /** 
+     * Parses loudness metadata and adds to the preset.
+     * @param[in] xml_in A pointer to the XML to parse
+     * @param[in] p_node the node containing the preset
+     */
     void do_loudness(rapidxml::xml_document<> *xml_in, rapidxml::xml_node<> *p_node);
 
     std::string get_preset_ID() {
@@ -69,13 +95,13 @@ public:
     }
 
     std::chrono::nanoseconds get_start_time() { return m_start_time; }
-    void        set_start_time(std::chrono::nanoseconds t) { m_start_time = t; }
+    void                     set_start_time(std::chrono::nanoseconds t) { m_start_time = t; }
 
     std::chrono::nanoseconds get_duration() { return m_end_time == MINUS1N ? MINUS1N : m_end_time - m_start_time; }
-    void        set_duration(std::chrono::nanoseconds t);
+    void                     set_duration(std::chrono::nanoseconds t);
 
     std::chrono::nanoseconds get_end_time() { return m_end_time; }
-    void        set_end_time(std::chrono::nanoseconds t) { m_end_time = t; }
+    void                     set_end_time(std::chrono::nanoseconds t) { m_end_time = t; }
 
     std::string get_audio_prog_str() { return m_audio_prog.second; }
 
@@ -92,7 +118,6 @@ private:
     std::pair<std::shared_ptr<adm::AudioProgramme>, std::string> m_audio_prog;
     std::chrono::nanoseconds                                     m_start_time;
     std::chrono::nanoseconds                                     m_end_time;
-
 };
 } // namespace icm
 

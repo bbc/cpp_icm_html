@@ -10,3 +10,4 @@ install/
 *.so
 *.so.*
 install_manifest.txt
+docs/

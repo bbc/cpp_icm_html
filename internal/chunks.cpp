@@ -1,5 +1,5 @@
-#include "common.hpp"
 #include "chunks.hpp"
+#include "common.hpp"
 #include <fstream>
 #include <iostream>
 #include <regex>
@@ -20,7 +20,7 @@ Chna::Chna(int test) {
     ;
 }
 
-std::shared_ptr<Chna> Chna::read_chna_file(std::string filePath, ICM_ERROR_CODE &error_code, std::vector<std::shared_ptr<adm::AudioObject>>* aos) {
+std::shared_ptr<Chna> Chna::read_chna_file(std::string filePath, ICM_ERROR_CODE &error_code, std::vector<std::shared_ptr<adm::AudioObject>> *aos) {
     std::ifstream chna_file(filePath);
     if (!chna_file.is_open()) {
         ERROR("Could not open CHNA file %s\n", filePath.c_str());
@@ -36,7 +36,7 @@ std::shared_ptr<Chna> Chna::read_chna_file(std::string filePath, ICM_ERROR_CODE 
             if (chna_line == "")
                 break;
             dbg_line_counter++;
-            DEBUG("CHNA Line %d Seen: %s\n", dbg_line_counter, chna_line.c_str());
+            //DEBUG("CHNA Line %d Seen: %s\n", dbg_line_counter, chna_line.c_str());
             std::vector<std::string> split_line = Chna::split_string_on_whitespace(chna_line);
             int                      track_index;
             std::string              UID, format_id_ref, pack_format_ID_ref;
@@ -82,19 +82,35 @@ int Chna::get_num_of_uids() {
     return m_num_of_uids;
 }
 
-void AudioID::resolve_aos(std::vector<std::shared_ptr<adm::AudioObject>>* aos){
-    for (auto ao : *aos){
-        auto ao_uids =  ao->getReferences<adm::AudioTrackUid>();
-        for(auto uid : ao_uids){
+void AudioID::resolve_aos(std::vector<std::shared_ptr<adm::AudioObject>> *aos) {
+    for (auto ao : *aos) {
+        auto ao_uids = ao->getReferences<adm::AudioTrackUid>();
+        for (auto uid : ao_uids) {
             auto id = uid->get<adm::AudioTrackUidId>();
-	        auto id_string = adm::formatId(id);
+            auto id_string = adm::formatId(id);
 
-
-
-            if(strcmp(m_UID.c_str(), id_string.c_str()) == 0) {
+            if (strcmp(m_UID.c_str(), id_string.c_str()) == 0) {
                 std::shared_ptr<adm::AudioObject> the_sp = ao;
-                std::string ao_name = adm::formatId(ao->get<adm::AudioObjectId>());
-                m_AOs.push_back(std::make_pair<std::shared_ptr<adm::AudioObject>, std::string>(std::move(the_sp), std::move(id_string)));
+                std::string                       ao_name = adm::formatId(ao->get<adm::AudioObjectId>());
+                m_AOs.push_back(std::make_pair<std::shared_ptr<adm::AudioObject>, std::string>(std::move(the_sp), std::move(ao_name)));
+            }
+        }
+    }
+
+    int ao_size = m_AOs.size(); 
+
+    for(int ao_pair = 0; ao_pair < ao_size; ao_pair++){
+        std::string name_to_check = m_AOs[ao_pair].second;
+        for(auto ao : *aos){
+            std::string ao_name = adm::formatId(ao->get<adm::AudioObjectId>());
+            if(ao_name != name_to_check){
+                auto aos_referenced = ao->getReferences<adm::AudioObject>();
+                for(auto ao_ref : aos_referenced){
+                    std::string ref_name = adm::formatId(ao_ref->get<adm::AudioObjectId>());
+                    if(ref_name == name_to_check){ //if the AudioObject reference is the same as the one we're working on, then push back another
+                        m_AOs.push_back(std::make_pair<std::shared_ptr<adm::AudioObject>, std::string>(std::move(ao), std::move(ao_name)));
+                    }
+                }
             }
         }
     }

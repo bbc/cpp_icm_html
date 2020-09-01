@@ -556,7 +556,7 @@ void ICMDocument::add_preset(rapidxml::xml_node<> *preset_in) {
         if ((std::string)node->name() == "label") {
             std::string lang = "";
             for (rapidxml::xml_attribute<> *attrib = node->first_attribute(); attrib; attrib = attrib->next_attribute()) {
-                std::cout << (std::string)attrib->name() << std::endl;
+                //std::cout << (std::string)attrib->name() << std::endl;
                 if ((std::string)attrib->name() == "lang")
                     lang = (std::string)attrib->value();
             }
