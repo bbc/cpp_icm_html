@@ -376,6 +376,7 @@ public:
         m_label = label;
     }
 
+    std::vector<std::pair<std::shared_ptr<adm::AudioObject>, std::string>> m_options_list;
     std::vector<option *> m_options;
 
 private:

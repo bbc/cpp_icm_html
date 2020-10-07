@@ -1,3 +1,4 @@
+//VSCODE STOPPED DETECTING THINGS EVEN THOUGH THEY ARE CLEARLY IN THE INCLUDE PATH SO I'M GOING TO HAVE TO 
 #include "Control.hpp"
 #include "common.hpp"
 #include "icmdocument.hpp"

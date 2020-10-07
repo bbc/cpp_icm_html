@@ -1,4 +1,4 @@
-#include "icmdocument.hpp"
+#include "../include/icmdocument.hpp"
 #include <iostream>
 #include <string>
 
@@ -38,8 +38,6 @@ ICMDocument *ICMDocument::parse_xml_from_file(char *file_in, std::shared_ptr<adm
             ERROR("Unknown node seen in AudioInteraction: %s\n", node_name.c_str());
     }
 
-
-
     //As the references are only stored as strings currently, this function will resolve those string identifiers into pointers and add them to the appropriate elements.
     the_icm->make_references(the_adm);
 
@@ -75,7 +73,7 @@ void ICMDocument::make_references(std::shared_ptr<adm::Document> the_adm) {
             }
         }
 
-        for(int b = 0; b < preset->m_interactive_value_sets.size(); b++){
+        for (int b = 0; b < preset->m_interactive_value_sets.size(); b++) {
             preset->m_interactive_value_sets[b].first = lookup_IVS(preset->m_interactive_value_sets[b].second);
         }
     }
@@ -86,19 +84,22 @@ void ICMDocument::make_references(std::shared_ptr<adm::Document> the_adm) {
         if (control->m_control_type == Control::CONTROL_CONTINUOUS) {
             std::shared_ptr<ContinuousControl>          cast_control = std::static_pointer_cast<ContinuousControl>(control);
             std::vector<ContinuousControl::variable *> *cc_vars = cast_control->get_variables();
-            for (auto v : *cc_vars) {
-                for (auto ao_pair : v->v_audio_objects) {
+            for (auto &v : *cc_vars) {
+                for (auto &ao_pair : v->v_audio_objects) {
                     ao_pair.first = lookup_audio_elem(the_adm, ao_pair.second);
                 }
             }
         } else if (control->m_control_type == Control::CONTROL_OPTION) {
             std::shared_ptr<OptionControl> cast_control = std::static_pointer_cast<OptionControl>(control);
+            for (auto &ao : cast_control->m_options_list) {
+                ao.first = lookup_audio_elem(the_adm, ao.second);
+            }
             for (auto opt : cast_control->m_options) {
-                for (auto ao : opt->o_audio_objects)
+                for (auto &ao : opt->o_audio_objects)
                     ao.first = lookup_audio_elem(the_adm, ao.second);
 
                 //NEEDS IMPLEMENTING HA
-                for (auto cc : opt->o_cond_controls)
+                for (auto &cc : opt->o_cond_controls)
                     cc.first = lookup_control(cc.second);
             }
         } else if (control->m_control_type == Control::CONTROL_TOGGLE) {
@@ -106,14 +107,14 @@ void ICMDocument::make_references(std::shared_ptr<adm::Document> the_adm) {
             std::shared_ptr<ToggleControl> cast_control = std::static_pointer_cast<ToggleControl>(control);
             for (int b = 0; b < 2; b++) {
                 auto the_state = cast_control->get_state(b);
-                for (auto ao : *(the_state->s_off->ss_audio_objects))
+                for (auto &ao : *(the_state->s_off->ss_audio_objects))
                     ao.first = lookup_audio_elem(the_adm, ao.second);
-                for (auto ao : *(the_state->s_on->ss_audio_objects))
+                for (auto &ao : *(the_state->s_on->ss_audio_objects))
                     ao.first = lookup_audio_elem(the_adm, ao.second);
 
-                for (auto cc : *(the_state->s_off->ss_comp_objects))
+                for (auto &cc : *(the_state->s_off->ss_comp_objects))
                     cc.first = lookup_audio_elem(the_adm, cc.second);
-                for (auto cc : *(the_state->s_on->ss_comp_objects))
+                for (auto &cc : *(the_state->s_on->ss_comp_objects))
                     cc.first = lookup_audio_elem(the_adm, cc.second);
             }
         }
@@ -341,13 +342,13 @@ void ICMDocument::add_control(rapidxml::xml_node<> *control_in) {
         TOG
     };
 
-    std::string c_name;
-    std::string c_ID;
+    std::string              c_name;
+    std::string              c_ID;
     std::chrono::nanoseconds start_time = std::chrono::nanoseconds(0);
     std::chrono::nanoseconds end_time = std::chrono::nanoseconds(-1);
     std::chrono::nanoseconds dur = std::chrono::nanoseconds(-1);
-    CTYPE c_type;
-    bool is_cond = false;
+    CTYPE                    c_type;
+    bool                     is_cond = false;
     //scan attributes of control tag as they are the same across all types of control
     for (rapidxml::xml_attribute<> *attrib = control_in->first_attribute(); attrib; attrib = attrib->next_attribute()) {
         std::string attrib_name = (std::string)(attrib->name());
@@ -362,23 +363,21 @@ void ICMDocument::add_control(rapidxml::xml_node<> *control_in) {
                 c_type = OPT;
             else if ((std::string)attrib->value() == "toggle")
                 c_type = TOG;
-        }
-        else if(attrib_name == "conditional"){
-            if ((std::string)attrib->value() == "1") is_cond = true;
-        }
-        else if(attrib_name == "start"){
+        } else if (attrib_name == "conditional") {
+            if ((std::string)attrib->value() == "1")
+                is_cond = true;
+        } else if (attrib_name == "start") {
             start_time = adm::parseTimecode((std::string)attrib->value());
-        }
-        else if(attrib_name == "duration"){
+        } else if (attrib_name == "duration") {
             dur = adm::parseTimecode((std::string)attrib->value());
         }
     }
 
-    if(dur != std::chrono::nanoseconds(-1)){
+    if (dur != std::chrono::nanoseconds(-1)) {
         end_time = start_time + dur;
     }
 
-    switch(c_type){
+    switch (c_type) {
         case CONT:
             add_continuous_control(control_in, c_ID, c_name, start_time, end_time, is_cond);
             break;
@@ -388,8 +387,6 @@ void ICMDocument::add_control(rapidxml::xml_node<> *control_in) {
         case TOG:
             add_toggle_control(control_in, c_ID, c_name, start_time, end_time, is_cond);
     }
-
-
 }
 
 std::shared_ptr<Control> ICMDocument::add_continuous_control(rapidxml::xml_node<> *control_in, std::string c_ID, std::string c_name, std::chrono::nanoseconds start_time, std::chrono::nanoseconds end_time, bool is_cond) {
@@ -469,7 +466,14 @@ std::shared_ptr<Control> ICMDocument::add_option_control(rapidxml::xml_node<> *c
 
     for (rapidxml::xml_node<> *node = control_in->first_node(); node; node = node->next_sibling()) {
         std::string node_name = (std::string)(node->name());
-        if (node_name == "option") {
+        if (node_name == "optionObjectList") {
+            for (rapidxml::xml_node<> *opt_child = node->first_node(); opt_child; opt_child = opt_child->next_sibling()) {
+                if ((std::string)opt_child->name() == "audioObjectIDRef")
+                    the_control->m_options_list.push_back(
+                        std::make_pair<std::shared_ptr<adm::AudioObject>, std::string>(nullptr, (std::string)opt_child->value()));
+            }
+
+        } else if (node_name == "option") {
             OptionControl::option *the_opt = new OptionControl::option();
             for (rapidxml::xml_attribute<> *attrib = node->first_attribute(); attrib; attrib = attrib->next_attribute()) {
                 std::string val = (std::string)attrib->name();
@@ -533,10 +537,10 @@ std::shared_ptr<Control> ICMDocument::add_toggle_control(rapidxml::xml_node<> *c
 
 void ICMDocument::add_preset(rapidxml::xml_node<> *preset_in) {
 
-    std::string                 pid, pname;
-    int                         pindex;
-    std::chrono::nanoseconds    pstart = std::chrono::nanoseconds(0);
-    std::chrono::nanoseconds    pend = std::chrono::nanoseconds(-1);
+    std::string              pid, pname;
+    int                      pindex;
+    std::chrono::nanoseconds pstart = std::chrono::nanoseconds(0);
+    std::chrono::nanoseconds pend = std::chrono::nanoseconds(-1);
 
     for (rapidxml::xml_attribute<> *attrib = preset_in->first_attribute(); attrib; attrib = attrib->next_attribute()) {
         std::string attrib_name = (std::string)(attrib->name());
@@ -708,7 +712,6 @@ std::shared_ptr<adm::Document> read_adm_xml_file(std::string filePath, ICM_ERROR
         //return nullptr;
         //}
         return the_adm;
-
     }
 }
 

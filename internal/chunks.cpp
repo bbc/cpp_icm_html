@@ -16,9 +16,6 @@ std::shared_ptr<AudioID> AudioID::get_audioID(int track_index, std::string UID, 
     return std::shared_ptr<AudioID>(new AudioID(track_index, UID, format_ID_ref, pack_format_ID_ref));
 }
 
-Chna::Chna(int test) {
-    ;
-}
 
 std::shared_ptr<Chna> Chna::read_chna_file(std::string filePath, ICM_ERROR_CODE &error_code, std::vector<std::shared_ptr<adm::AudioObject>> *aos) {
     std::ifstream chna_file(filePath);
@@ -78,9 +75,6 @@ int Chna::get_num_of_tracks() {
     return m_num_of_tracks;
 }
 
-int Chna::get_num_of_uids() {
-    return m_num_of_uids;
-}
 
 void AudioID::resolve_aos(std::vector<std::shared_ptr<adm::AudioObject>> *aos) {
     for (auto ao : *aos) {
